@@ -1,0 +1,395 @@
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row" [formGroup]="settingsForm">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-rose card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">settings</i>
+                        </div>
+                        <h4 class="card-title">
+                            Attack
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="col-md-12">
+                                <div class="input-group form-control-lg" style="width: auto;">
+                                    <ng-select formControlName="deviceName"
+                                               [clearable]="false"
+                                               placeholder="Select Interface *"
+                                               bindLabel="name"
+                                               bindValue="name"
+                                               [items]="toSelectDevices"
+                                               [disableControl]="deviceStatusLoading || deviceOpened"
+                                                style="width: 100%;">
+                                        <ng-template ng-label-tmp let-item="item">
+                                            <i class="material-icons" style="vertical-align: middle;">device_hub</i> {{item.name}} {{item.description? (' - ' + item.description): ''}}
+                                        </ng-template>
+                                        <ng-template ng-option-tmp let-item="item">
+                                            <i class="material-icons" style="vertical-align: middle;">device_hub</i> {{item.name}} {{item.description? (' - ' + item.description): ''}}
+                                        </ng-template>
+                                    </ng-select>
+                                    <mat-error class="for-select2" *ngIf="getDeviceNameControl().hasError('required')">
+                                        Interface is <strong>required</strong>
+                                    </mat-error>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-3">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getLocalIpControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Local IP *"
+                                                [errorStateMatcher]="matcher"
+                                                formControlName="localIp"
+                                                [disableControl]="deviceStatusLoading || deviceOpened"/>
+                                        <mat-error *ngIf="getLocalIpControl().hasError('required')">
+                                            Local IP is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getLocalMacControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Local Mac *"
+                                                [errorStateMatcher]="matcher"
+                                               [disableControl]="deviceStatusLoading || deviceOpened"
+                                                formControlName="localMac"/>
+                                        <mat-error *ngIf="getLocalMacControl().hasError('required')">
+                                            Local Mac is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getTargetIpControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Target IP *"
+                                                [errorStateMatcher]="matcher"
+                                                [disableControl]="deviceStatusLoading || deviceOpened"
+                                                formControlName="targetIp"/>
+                                        <mat-error *ngIf="getTargetIpControl().hasError('required')">
+                                            Target IP is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getTargetMacControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Target Mac *"
+                                                [errorStateMatcher]="matcher"
+                                                [disableControl]="deviceStatusLoading || deviceOpened"
+                                                formControlName="targetMac"/>
+                                        <mat-error *ngIf="getTargetMacControl().hasError('required')">
+                                            Target Mac is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getGatewayIpControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Gateway IP *"
+                                                [errorStateMatcher]="matcher"
+                                                [disableControl]="deviceStatusLoading || deviceOpened"
+                                                formControlName="gatewayIp"/>
+                                        <mat-error *ngIf="getGatewayIpControl().hasError('required')">
+                                            Gateway IP is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getGatewayMacControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Gateway Mac *"
+                                                [errorStateMatcher]="matcher"
+                                                [disableControl]="deviceStatusLoading || deviceOpened"
+                                                formControlName="gatewayMac"/>
+                                        <mat-error *ngIf="getGatewayMacControl().hasError('required')">
+                                            Gateway Mac is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="input-group form-control-lg">
+                                    <mat-form-field class="example-full-width"
+                                                    [ngClass]="{'has-success':getFilterDomainControl().valid}">
+                                        <input
+                                                type="text"
+                                                matInput
+                                                placeholder="Filter Domains (Split by ,) *"
+                                                [errorStateMatcher]="matcher"
+                                                [disableControl]="deviceStatusLoading || deviceOpened"
+                                                formControlName="filterDomain"/>
+                                        <mat-error *ngIf="getFilterDomainControl().hasError('required')">
+                                            Filter domains is <strong>required</strong>
+                                        </mat-error>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-12">
+                                <button mat-raised-button class="btn btn-success btn-sm"
+                                        *ngIf="!deviceStatusLoading && !deviceOpened"
+                                        title="Setup configs"
+                                        matTooltip="Setup configs" [matTooltipPosition]="'below'"
+                                        [disabled]='!settingsForm.valid'
+                                        (click)="onOpenDevice()">
+                                    <i class="material-icons">compass_calibration</i>
+                                </button>
+                                <button mat-raised-button class="btn btn-success btn-sm"
+                                        [disabled]="loading || attacking"
+                                        *ngIf="!deviceStatusLoading && deviceOpened"
+                                        (click)="onStartAttack()"
+                                        title="Attack start"
+                                        matTooltip="Attack start" [matTooltipPosition]="'below'">
+                                    <i class="material-icons">play_arrow</i>
+                                </button>
+                                <button mat-raised-button class="btn btn-danger btn-sm"
+                                        [disabled]="loading || !attacking"
+                                        *ngIf="!deviceStatusLoading && deviceOpened"
+                                        (click)="onStopAttack()"
+                                        title="Attack stop"
+                                        matTooltip="Attack stop" [matTooltipPosition]="'below'">
+                                    <i class="material-icons">stop</i>
+                                </button>
+                                <span style="margin-left: 15px">Will automatically begin analyzing packets in this session after you stop attacking</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="attacking">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="alert alert-danger alert-with-icon" style="margin-top: 0;">
+                    <i class="material-icons" data-notify="icon">tap_and_play</i>
+                    <span style="text-align: center;">Attacking</span>
+                    <mat-progress-bar mode="buffer"></mat-progress-bar>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-success card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>All
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.upStreamNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> Upstream - Packets sent out from the target
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-primary card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>All
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.downStreamNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> Downstream - Packets received by the target
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>TCP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.upTcpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>UDP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.upUdpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> UDP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>ICMP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.upIcmpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ICMP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>ARP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.upArpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ARP is not belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>TCP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.downTcpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>UDP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.downUdpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> UDP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>ICMP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.downIcmpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ICMP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>ARP
+                        </p>
+                        <h3 class="card-title">{{attackStatistic?.downArpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ARP is not belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

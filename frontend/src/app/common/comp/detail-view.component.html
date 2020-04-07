@@ -1,0 +1,21 @@
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<app-modal #detailViewModal
+           [modalId]="modalId"
+           [title]="title"
+           [description]="description">
+    <ng-container *ngFor="let informationItem of informationItems; let i = index">
+        <div class="row"
+             [ngStyle]="{'border-bottom': (i<informationItems.length-1)?'1px solid #eeeeee':null, 'padding-top': i>0?'10px':null}">
+            <label class="col-6">{{informationItem.label}}</label>
+            <span class="col-6" style="font-weight: bold;" *ngIf="!isBooleanValue(informationItem.value)">{{informationItem.value}}</span>
+            <span class="col-6" *ngIf="isBooleanValue(informationItem.value)">
+                                    <i class="material-icons" *ngIf="informationItem.value">check</i>
+                                    <i class="material-icons" *ngIf="!informationItem.value">close</i>
+                                </span>
+        </div>
+    </ng-container>
+</app-modal>

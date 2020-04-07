@@ -1,0 +1,628 @@
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<div class="main-content">
+    <div class="container-fluid">
+
+        <div class="row" *ngIf="isAnalyzing">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="alert alert-primary alert-with-icon">
+                    <i class="material-icons" data-notify="icon">image_search</i>
+                    <span style="text-align: center;">Analysing</span>
+                    <mat-progress-bar mode="buffer"></mat-progress-bar>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="!isAnalyzing">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="alert alert-success alert-with-icon">
+                    <i class="material-icons" data-notify="icon">done</i>
+                    <span style="text-align: center;">Finish Analysing!</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="padding-bottom: 0;">
+                <h4 class="card-title">Packet Filters &nbsp;&nbsp;<small style="color: gray;">(Leave blank to match
+                    all)
+                </small>
+                </h4>
+            </div>
+            <div class="card-body" style="padding-top: 0; padding-bottom: 0;">
+                <div class="row">
+                    <div class="col-2" style="width: auto;">
+                        <ng-select bindLabel="viewValue"
+                                   bindValue="value"
+                                   [multiple]="true"
+                                   [clearable]="false"
+                                   placeholder="Select BatchId"
+                                   [(ngModel)]="selectedBatchIds"
+                                   [items]="toSelectBatchIds">
+                            <ng-template ng-label-tmp let-item="item" let-label="label">
+                                <i class="material-icons" style="vertical-align: middle;">group_work</i> {{label}}
+                            </ng-template>
+                        </ng-select>
+                    </div>
+                    <div class="col-2" style="width: auto;">
+                        <ng-select bindLabel="viewValue"
+                                   bindValue="value"
+                                   [multiple]="true"
+                                   [clearable]="false"
+                                   placeholder="Select Direction"
+                                   [(ngModel)]="selectedDirections"
+                                   [items]="toSelectDirections">
+                            <ng-template ng-label-tmp let-item="item" let-label="label">
+                                <i class="material-icons" style="vertical-align: middle;">group_work</i> {{label}}
+                            </ng-template>
+                        </ng-select>
+                    </div>
+                    <div class="col-3" style="width: auto;">
+                        <ng-select bindLabel="viewValue"
+                                   bindValue="value"
+                                   [multiple]="true"
+                                   [clearable]="false"
+                                   placeholder="Select Protocol"
+                                   [(ngModel)]="selectedProtocols"
+                                   [items]="toSelectProtocols">
+                            <ng-template ng-label-tmp let-item="item" let-label="label">
+                                <i class="material-icons" style="vertical-align: middle;">group_work</i> {{label}}
+                            </ng-template>
+                        </ng-select>
+                    </div>
+                    <div class="col-3" style="width: auto;">
+                        <ng-select bindLabel="viewValue"
+                                   bindValue="value"
+                                   [multiple]="true"
+                                   [clearable]="false"
+                                   placeholder="Select Content Type"
+                                   [(ngModel)]="selectedContentTypes"
+                                   [items]="toSelectContentTypes">
+                            <ng-template ng-label-tmp let-item="item" let-label="label">
+                                <i class="material-icons" style="vertical-align: middle;">group_work</i> {{label}}
+                            </ng-template>
+                        </ng-select>
+                    </div>
+                    <div class="col-2" style="width: auto;">
+                        <div class="btn-group" data-toggle="buttons">
+                            <button mat-raised-button type="button" class="btn btn-primary btn-sm"
+                                    (click)="onFilterClick()" [disabled]="isAnalyzing"
+                                    title="Search">
+                    <span class="btn-label btn-label-right">
+                      <i class="material-icons">search</i>
+                    </span>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-success card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">view_compact</i>
+                        </div>
+                        <h4 class="card-title">
+                            Analyzed Packets: &nbsp;&nbsp;<small style="color: gray;">(Single select a record to see
+                            related original packets)
+                        </small>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ngx-datatable class="material"
+                                               [rows]="packetRows"
+                                               [columnMode]="'force'"
+                                               [headerHeight]="50"
+                                               [footerHeight]="50"
+                                               [rowHeight]="50"
+                                               [sorts]="[{prop: 'created', dir: 'asc'}]"
+                                               [scrollbarH]="true"
+                                               [scrollbarV]="true"
+                                               [trackByProp]="'id'"
+                                               [selected]="selectedAnalyzedPacket"
+                                               [selectionType]="'single'"
+                                               (select)='onSelectAnalyzedPacket($event)'
+                                               [loadingIndicator]="packetDataLoading"
+                                               style="min-height: 600px;">
+                                    <ngx-datatable-column name="Protocol">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['protocol']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Batch ID">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['batchId']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Ack Number">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['ackNum']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <ngx-datatable-column name="Direction">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span *ngIf="!isBooleanValue(row['upstream'])"
+                                                  [innerHtml]="row['upstream'] | safe: 'html'"
+                                                  title="{{row['upstream']}}">
+                                            </span>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['upstream'])">
+                                                <i class="material-icons" style="color:red" *ngIf="row['upstream']">arrow_upward</i>
+                                                <i class="material-icons" style="color:blue" *ngIf="!row['upstream']">arrow_downward</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <ngx-datatable-column name="Minimized">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span *ngIf="!isBooleanValue(row['minimized'])"
+                                                  [innerHtml]="row['minimized'] | safe: 'html'"
+                                                  title="{{row['minimized']}}">
+                                            </span>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['minimized'])">
+                                                <i class="material-icons" *ngIf="row['minimized']">check</i>
+                                                <i class="material-icons" *ngIf="!row['minimized']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <ngx-datatable-column name="Compressed">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span *ngIf="!isBooleanValue(row['compressed'])"
+                                                  [innerHtml]="row['compressed'] | safe: 'html'"
+                                                  title="{{row['compressed']}}">
+                                            </span>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['compressed'])">
+                                                <i class="material-icons" *ngIf="row['compressed']">check</i>
+                                                <i class="material-icons" *ngIf="!row['compressed']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <ngx-datatable-column name="Src Mac">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['srcMac']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Dst Mac">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['destMac']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Src Ip">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['srcIp']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Dst Ip">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['destIp']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Src Port">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['srcPort']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Dst Port">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['destPort']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Data" [minWidth]="280">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{bytes2Str(row['data'] | json | truncate:8)}}
+                                            <button mat-raised-button class="btn btn-success btn-sm"
+                                                    *ngIf="row['data']"
+                                                    (click)="showDataDetail(row['data'])"
+                                                    style="margin: auto;">
+                                                Detail
+                                            </button>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Data (String)" [minWidth]="200">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['content'] | json | truncate:8}}
+                                            <button mat-raised-button class="btn btn-success btn-sm"
+                                                    *ngIf="row['content']"
+                                                    (click)="showDataStrDetail(row['content'])"
+                                                    style="margin: auto;">
+                                                Detail
+                                            </button>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="HTTP Request?">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['httpReq']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="HTTP Method">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span [title]="row['method']">{{row['method']}}</span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Http Content Type">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span [title]="row['contentType']">{{row['contentType']}}</span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Http Headers" [minWidth]="300">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['httpHeaders'] | json | truncate:32}}
+                                            <button mat-raised-button class="btn btn-success btn-sm"
+                                                    *ngIf="row['httpHeaders']"
+                                                    (click)="showHttpHeadersDetail(row['httpHeaders'])"
+                                                    style="margin: auto;">
+                                                Detail
+                                            </button>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Original Packet Num">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['originalPacketNum']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <ngx-datatable-column name="Https Decrypted">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span *ngIf="!isBooleanValue(row['decrypted'])"
+                                                  [innerHtml]="row['decrypted'] | safe: 'html'"
+                                                  title="{{row['decrypted']}}">
+                                            </span>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['decrypted'])">
+                                                <i class="material-icons" *ngIf="row['decrypted']">check</i>
+                                                <i class="material-icons" *ngIf="!row['decrypted']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <ngx-datatable-column name="Created">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['created'] | date: 'yyyy-MM-dd HH:mm:ss aaa'}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                </ngx-datatable>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-success card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">filter_frames</i>
+                        </div>
+                        <h4 class="card-title">
+                            Original Packets: &nbsp;&nbsp;<small style="color: gray;">(These are originally captured
+                            packets regarding the above selected record)
+                        </small>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ngx-datatable class="material"
+                                               [rows]="originalPacketRows"
+                                               [columnMode]="'force'"
+                                               [headerHeight]="50"
+                                               [footerHeight]="50"
+                                               [rowHeight]="50"
+                                               [sorts]="[{prop: 'created', dir: 'asc'}]"
+                                               [scrollbarH]="true"
+                                               [scrollbarV]="true"
+                                               [trackByProp]="'id'"
+                                               [loadingIndicator]="originalPacketDataLoading"
+                                               style="min-height: 600px;">
+
+                                    <!-- Packet -->
+                                    <ngx-datatable-column name="Captured Length">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['capLen']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Length of this Packet">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['len']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Header">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['hexHeader']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Length of Header">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['headerLen']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Data">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['hexData']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Length of Data">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['dataLen']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <!-- datalink -->
+                                    <ngx-datatable-column name="Src Mac">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['srcMac']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Dest Mac">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['dstMac']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Frame Type">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['frameType']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <!-- IP -->
+                                    <ngx-datatable-column name="IP Version">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['version']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Type of service">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['rsvTos']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Src IP">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['srcIp']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Dest IP">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['dstIp']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Options">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['option']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Priority">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['priority']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Packet Length">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['length']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Identification">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['ident']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Don't Frag?">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['dontFrag'])">
+                                                <i class="material-icons" *ngIf="row['dontFrag']">check</i>
+                                                <i class="material-icons" *ngIf="!row['dontFrag']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="More Frag?">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['moreFrag'])">
+                                                <i class="material-icons" *ngIf="row['moreFrag']">check</i>
+                                                <i class="material-icons" *ngIf="!row['moreFrag']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Frag Offset">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['offset']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Time to Live">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['hopLimit']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Protocol">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['protocol']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <!-- ICMP -->
+                                    <ngx-datatable-column name="ICMP Type">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['type']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="ICMP Alive Time">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['aliveTime']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <!-- TCP -->
+                                    <ngx-datatable-column name="Sequence Number">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['sequence']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Acknowledge Number">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['ackNum']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="URG">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['urg'])">
+                                                <i class="material-icons" *ngIf="row['urg']">check</i>
+                                                <i class="material-icons" *ngIf="!row['urg']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="ACK">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['ack'])">
+                                                <i class="material-icons" *ngIf="row['ack']">check</i>
+                                                <i class="material-icons" *ngIf="!row['ack']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="PSH">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['psh'])">
+                                                <i class="material-icons" *ngIf="row['psh']">check</i>
+                                                <i class="material-icons" *ngIf="!row['psh']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="RST">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['rst'])">
+                                                <i class="material-icons" *ngIf="row['rst']">check</i>
+                                                <i class="material-icons" *ngIf="!row['rst']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="SYN">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['syn'])">
+                                                <i class="material-icons" *ngIf="row['syn']">check</i>
+                                                <i class="material-icons" *ngIf="!row['syn']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="FIN">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <span class="col-6" *ngIf="isBooleanValue(row['fin'])">
+                                                <i class="material-icons" *ngIf="row['fin']">check</i>
+                                                <i class="material-icons" *ngIf="!row['fin']">close</i>
+                                            </span>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Window Size">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['window']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Urgent Pointer">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['urgentPointer']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Src Port">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['srcPort']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Dest Port">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['dstPort']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                    <!-- ARP -->
+                                    <ngx-datatable-column name="Hardware Type">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['hardwareType']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Prototype Type">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['prototype']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Hardware Address Length">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['hardwareAddressLen']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Protocol Address Length">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['protocolAddressLen']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Operation">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['operation']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Sender Hardware Address">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['senderHardwareAddress']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Sender Protocol Address">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['senderProtocolAddress']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Target Hardware Address">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['targetHardwareAddress']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Target Protocol Address">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['targetProtocolAddress']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+
+                                </ngx-datatable>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<app-detail-view #httpHeadersDetailModal
+                 [modalId]="'httpHeadersDetailModal'"
+                 [title]="'Http Headers'"
+                 [informationItems]="httpHeadersItems">
+</app-detail-view>
+
+<app-modal #dataDetailModal
+           [modalId]="'dataDetailModal'"
+           [title]="'Data'"
+           [description]="'Hex string of the data'">
+    <div class="row">
+        <div class="col-md-12">
+            {{dataDetail}}
+        </div>
+    </div>
+</app-modal>
+
+<app-modal #dataStrDetailModal
+           [modalId]="'dataStrDetailModal'"
+           [title]="'Data (String)'"
+           [description]="'Decrypted string of the data'">
+    <div class="row">
+        <div class="col-md-12">
+            {{dataStrDetail}}
+        </div>
+    </div>
+</app-modal>
