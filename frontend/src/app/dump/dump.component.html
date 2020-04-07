@@ -1,0 +1,69 @@
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">history</i>
+                        </div>
+                        <h4 class="card-title">Dump History</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ngx-datatable class="material"
+                                               [rows]="dumpRows"
+                                               [columnMode]="'force'"
+                                               [headerHeight]="50"
+                                               [footerHeight]="50"
+                                               [rowHeight]="50"
+                                               [sorts]="[{prop: 'startAttackTime', dir: 'desc'}]"
+                                               [scrollbarH]="true"
+                                               [trackByProp]="'startAttackTime'"
+                                               [loadingIndicator]="dumpRecordsLoading">
+                                    <ngx-datatable-column name="Batch ID" [width]="200">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['batchId']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Attack Time" [width]="200">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['startAttackTime'] | date:'medium'}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Upstream Packets">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['upstreamPackets']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Downstream Packets">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            {{row['downstreamPackets']}}
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                    <ngx-datatable-column name="Operation" [width]="300">
+                                        <ng-template let-row="row" ngx-datatable-cell-template>
+                                            <button mat-raised-button class="btn btn-primary btn-sm" (click)="beginAnalyzing(row['batchId'])" style="margin-top: -5px;">
+                                                Re-analyze
+                                            </button>
+                                            <button mat-raised-button class="btn btn-danger btn-sm" (click)="deleteAttackHis(row['batchId'])" style="margin-left: 10px; margin-top: -5px;">
+                                                Delete
+                                            </button>
+                                        </ng-template>
+                                    </ngx-datatable-column>
+                                </ngx-datatable>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,179 @@
+
+.leaflet-container .geojson-list {
+	position:relative;
+	float:left;
+	color:#1978cf;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 0;
+	background-color: rgba(255, 255, 255, 0.6);
+	box-shadow: 0 1px 7px rgba(0,0,0,0.65);
+	min-width: 30px;
+	min-height:26px;
+	overflow-y: auto;
+	height: auto;
+	border-radius: 5px;
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	padding: 1px 1px;
+}
+
+.leaflet-control.geojson-list .geojson-list-toggle {
+	display: none;
+}
+.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-toggle {
+	display: block;
+}
+.geojson-list-group {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 -1px 0;
+}
+.geojson-list-item {
+	padding: 0;
+	margin: 0;
+	clear: both;
+	cursor: pointer;
+	display: block;
+	overflow: hidden;
+	line-height: 18px;
+	vertical-align: middle;
+	font-size: 1em;
+	min-width: 120px;
+	color: #666;
+	text-decoration: none;
+	border-bottom: 1px solid rgba(0,0,0, 0.5);
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	white-space: nowrap;
+	text-transform: capitalize;
+}
+.geojson-list-item:hover,
+.geojson-list-item.active {
+	display: block;
+	color: #666;
+	text-decoration: none;
+	background-color: rgba(255,204,0, 0.6);	/* #FFCC00 */
+}
+.geojson-list-item.selected {
+	color: #666;
+	background-color: rgba(255,136,0, 0.8);	/* #FF8800 */
+}
+.geojson-list-item input {
+	line-height: 18px;
+	margin: 4px;
+}
+.geojson-list-item label {
+	display: block;
+	cursor: pointer;
+	vertical-align: middle;
+}
+.leaflet-control.geojson-list .geojson-list-group {
+	display: block;
+}
+.leaflet-control.geojson-list.geojson-list-collapsed .geojson-list-ul {
+	display: none;
+}
+
+.geojson-list-collapsed .geojson-list-item{
+	display: none !important;
+}
+.geojson-list.geojson-list-collapsed {
+	height: 28px !important;
+	overflow-y: hidden !important;
+}
+
+.geojson-list .geojson-list-toggle {
+	display:block;
+	float:left;
+	width:26px;
+	height:26px;
+	background: url('images/list-icon.png') no-repeat 2px 2px;
+	border-radius:4px;
+}
+.geojson-list .geojson-list-toggle:hover,
+.geojson-list .geojson-list-toggle.active:hover {
+	background: url('images/list-icon.png') no-repeat 2px -24px #fff;
+}
+.geojson-list .geojson-list-toggle.active {
+	background: url('images/list-icon.png') no-repeat 2px -50px #fff;
+}
+
+
+/*滚动条整体部分*/
+.geojson-list::-webkit-scrollbar{
+	width: 7px;
+	height: 7px;
+	border-radius: 4px;
+}
+/*滚动条两端的箭头*/
+.geojson-list::-webkit-scrollbar-button{
+	display: none;
+}
+/*滚动条内侧部分 去掉*/
+.geojson-list::-webkit-scrollbar-track-piece {
+	display: none;
+}
+/*滚动条中可以拖动的那部分*/
+.geojson-list::-webkit-scrollbar-thumb{
+	background-color: #489a65;
+	border-radius: 4px;
+}
+/*变角部分*/
+.geojson-list::-webkit-scrollbar-corner {
+	display: none;
+}
+.geojson-list::-webkit-resizer{
+	display: none;
+}
+
+input.radio{
+	outline: none;
+}
+.geojson-list-group .radio, .geojson-list-group .checkbox {
+	width: 1.2rem;
+	height: 1.2rem;
+	background-color: #ffffff;
+	border: solid 1px #dddddd;
+	-webkit-border-radius: 0.6rem;
+	border-radius: 0.6rem;
+	font-size: 0.8rem;
+	margin: 0;
+	padding: 0;
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+	cursor: default;
+	-webkit-appearance: none;  /**隐藏原生控件**/
+}
+
+.checkbox {
+	border-radius: 0.1rem;   /**复选框的圆角要小一些**/
+}
+/**选择后的样式**/
+.radio:checked,.checkbox:checked{
+	background-color: #2c92c1;
+	border: solid 1px #00adc8;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+	text-align: center;
+	background-clip: padding-box;
+}
+/**选择后 里面小对勾样式**/
+.radio:checked:before,.checkbox:checked:before{
+	content: '';
+	width: 0.5rem;
+	height: 0.3rem;
+	border: 1px solid #ffffff;
+	border-top: none;
+	border-right: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -0.25rem;
+	margin-top: -0.25rem;
+	-webkit-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}

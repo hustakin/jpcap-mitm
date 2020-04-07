@@ -1,0 +1,19 @@
+
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<div class="wrapper">
+    <div class="sidebar" data-color="white" data-background-color="black" data-image="#">
+        <app-sidebar-cmp></app-sidebar-cmp>
+        <div class="sidebar-background"></div>
+    </div>
+    <div class="main-panel">
+        <app-navbar-cmp></app-navbar-cmp>
+        <router-outlet></router-outlet>
+        <div *ngIf="!isMap()">
+            <app-footer-cmp></app-footer-cmp>
+        </div>
+    </div>
+</div>

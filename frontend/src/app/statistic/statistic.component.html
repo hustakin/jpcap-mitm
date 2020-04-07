@@ -1,0 +1,437 @@
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<div class="main-content">
+    <div class="container-fluid">
+
+        <div class="row" *ngIf="isAnalyzing">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="alert alert-primary alert-with-icon">
+                    <i class="material-icons" data-notify="icon">image_search</i>
+                    <span style="text-align: center;">Analysing</span>
+                    <mat-progress-bar mode="buffer"></mat-progress-bar>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="!isAnalyzing">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="alert alert-success alert-with-icon">
+                    <i class="material-icons" data-notify="icon">done</i>
+                    <span style="text-align: center;">Finish Analysing!</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="padding-bottom: 0;">
+                <h4 class="card-title">Packet Filters &nbsp;&nbsp;<small style="color: gray;">(Leave blank to match
+                    all)
+                </small>
+                </h4>
+            </div>
+            <div class="card-body" style="padding-top: 0; padding-bottom: 0;">
+                <div class="row">
+                    <div class="col-2" style="width: auto;">
+                        <ng-select bindLabel="viewValue"
+                                   bindValue="value"
+                                   [multiple]="true"
+                                   [clearable]="false"
+                                   placeholder="Select BatchId"
+                                   [(ngModel)]="selectedBatchIds"
+                                   [items]="toSelectBatchIds">
+                            <ng-template ng-label-tmp let-item="item" let-label="label">
+                                <i class="material-icons" style="vertical-align: middle;">group_work</i> {{label}}
+                            </ng-template>
+                        </ng-select>
+                    </div>
+                    <div class="col-2" style="width: auto;">
+                        <div class="btn-group" data-toggle="buttons">
+                            <button mat-raised-button type="button" class="btn btn-primary btn-sm"
+                                    (click)="onFilterClick()" [disabled]="isAnalyzing"
+                                    title="Search">
+                    <span class="btn-label btn-label-right">
+                      <i class="material-icons">search</i>
+                    </span>
+                                Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-success card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>All
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upStreamNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> Upstream - Packets sent out from the target
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-primary card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>All
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downStreamNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> Downstream - Packets received by the target
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>HTTP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upHttpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>HTTPS
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upHttpsNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>TCP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upTcpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>UDP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upUdpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> UDP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>ICMP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upIcmpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ICMP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>ARP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.upArpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ARP is not belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>HTTP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downHttpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>HTTPS
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downHttpsNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>TCP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downTcpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> HTTP/HTTPS are also included
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>UDP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downUdpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> UDP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>ICMP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downIcmpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ICMP is belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">phonelink_ring</i>
+                        </div>
+                        <p class="card-category" style="color: brown;font-weight: 500;">
+                            <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>ARP
+                        </p>
+                        <h3 class="card-title">{{packetsStatistic?.downArpNum}}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">local_offer</i> ARP is not belong to IP
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- charts -->
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="card chart-card">
+                    <div class="card-header card-header-icon" [ngClass]="'card-header-info'">
+                        <div class="card-icon">
+                            <i class="material-icons">pie_chart</i>
+                        </div>
+                        <h4 class="card-title">
+                            Protocol <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>
+                        </h4>
+                    </div>
+                    <div class="card-body" style="background-color: #f7e9b7; padding-top: 0;">
+                        <div *ngIf="!upstreamProtocolPieHasData">No Data!</div>
+                        <div *ngIf="upstreamProtocolPieHasData" echarts [options]="upstreamProtocolPieChartOption"
+                             theme="default" class="demo-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card chart-card">
+                    <div class="card-header card-header-icon" [ngClass]="'card-header-info'">
+                        <div class="card-icon">
+                            <i class="material-icons">pie_chart</i>
+                        </div>
+                        <h4 class="card-title">
+                            Protocol <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>
+                        </h4>
+                    </div>
+                    <div class="card-body" style="background-color: #f7e9b7; padding-top: 0;">
+                        <div *ngIf="!downstreamProtocolPieHasData">No Data!</div>
+                        <div *ngIf="downstreamProtocolPieHasData" echarts [options]="downstreamProtocolPieChartOption"
+                             theme="default" class="demo-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card chart-card">
+                    <div class="card-header card-header-icon" [ngClass]="'card-header-info'">
+                        <div class="card-icon">
+                            <i class="material-icons">pie_chart</i>
+                        </div>
+                        <h4 class="card-title">
+                            Content Type <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>
+                        </h4>
+                    </div>
+                    <div class="card-body" style="background-color: #f7e9b7; padding-top: 0;">
+                        <div *ngIf="!upstreamContentTypePieHasData">No Data!</div>
+                        <div *ngIf="upstreamContentTypePieHasData" echarts [options]="upstreamContentTypePieChartOption"
+                             theme="default" class="demo-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card chart-card">
+                    <div class="card-header card-header-icon" [ngClass]="'card-header-info'">
+                        <div class="card-icon">
+                            <i class="material-icons">pie_chart</i>
+                        </div>
+                        <h4 class="card-title">
+                            Content Type <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>
+                        </h4>
+                    </div>
+                    <div class="card-body" style="background-color: #f7e9b7; padding-top: 0;">
+                        <div *ngIf="!downstreamContentTypePieHasData">No Data!</div>
+                        <div *ngIf="downstreamContentTypePieHasData" echarts [options]="downstreamContentTypePieChartOption"
+                             theme="default" class="demo-chart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="card chart-card">
+                    <div class="card-header card-header-icon" [ngClass]="'card-header-info'">
+                        <div class="card-icon">
+                            <i class="material-icons">timeline</i>
+                        </div>
+                        <h4 class="card-title">
+                            Timeline <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_upward</i>
+                        </h4>
+                    </div>
+                    <div class="card-body" style="background-color: #f7e9b7; padding-top: 0;">
+                        <div *ngIf="!upstreamTimelineHasData">No Data!</div>
+                        <div *ngIf="upstreamTimelineHasData" echarts [options]="upstreamTimelineChartOption"
+                             theme="default" class="demo-chart" (chartInit)="onChartInit($event)"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="card chart-card">
+                    <div class="card-header card-header-icon" [ngClass]="'card-header-info'">
+                        <div class="card-icon">
+                            <i class="material-icons">timeline</i>
+                        </div>
+                        <h4 class="card-title">
+                            Timeline <i class="material-icons" style="line-height: 20px; font-size: 20px;">arrow_downward</i>
+                        </h4>
+                    </div>
+                    <div class="card-body" style="background-color: #f7e9b7; padding-top: 0;">
+                        <div *ngIf="!downstreamTimelineHasData">No Data!</div>
+                        <div *ngIf="downstreamTimelineHasData" echarts [options]="downstreamTimelineChartOption"
+                             theme="default" class="demo-chart" (chartInit)="onChartInit($event)"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,328 @@
+
+@import "~@ng-select/ng-select/themes/material.theme.css";
+@import '~@swimlane/ngx-datatable/release/index.css';
+@import '~@swimlane/ngx-datatable/release/themes/material.css';
+@import '~@swimlane/ngx-datatable/release/assets/icons.css';
+@import '~angular2-busy/build/style/busy.css';
+
+/* css to customize label layer styles  */
+.leaflet-label-layer {
+  line-height: normal;
+  margin-top: 0px;
+  position: absolute;
+}
+
+.geojson-text-label {
+  font-weight: bold;
+  color: #fff;
+}
+
+/* css to customize dt/dd styles  */
+.dl-horizontal dt {
+  float: left;
+  width: 160px;
+  overflow: hidden;
+  clear: left;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+dt {
+  font-weight: 700;
+}
+.dl-horizontal dd {
+  margin-left: 180px;
+}
+dd, dt {
+  line-height: 1.42857143;
+}
+
+/* css to customize chart card styles  */
+.chart-card {
+  margin-top:0;
+  background-color: #f7e9b7;
+}
+
+/* css to customize data table styles  */
+.data-card-header {
+  background: linear-gradient(60deg, #d2da5f, #24aaa4) !important;
+}
+
+/* css to customize selectable card styles  */
+.selectable-card {
+  cursor: pointer;
+  transform: translate3d(0,0,0);
+  transition: all .3s cubic-bezier(.34,1.61,.7,1);
+}
+.selectable-card h3 {
+  font-size: 1.5em;
+}
+.selectable-card:hover {
+  cursor: pointer;
+  background-color: lightgrey;
+  transform: translate3d(0,-20px,0);
+}
+.selected-card {
+  background-color: lightsalmon;
+  position: relative;
+  border: 3px solid #24aaa4;
+}
+.selected-card:before{
+  position: absolute;
+  display: block;
+  border-top: 28px solid #24aaa4;
+  border-left: 28px solid transparent;
+  right: 0;
+  top: 0;
+  content: "";
+  z-index: 101;
+}
+.selected-card:after{
+  position: absolute;
+  display: block;
+  content: "\e013";
+  top: 0;
+  right: 0;
+  font-family: Glyphicons Halflings;
+  font-size: 10pt;
+  font-weight: normal;
+  z-index: 102;
+  color: #fff;
+}
+.selectable-card .card-icon {
+  padding: 5px !important;
+}
+.selectable-card .card-header i {
+  font-size: 36px;
+  vertical-align: middle;
+  line-height: 36px;
+  width: 36px;
+  height: 36px;
+  text-align: center;
+}
+
+/* css to customize selectable action buttons footer styles  */
+.selectable-card .card-actions{
+  position: absolute;
+  top: auto;
+  bottom: -50px;
+  width: auto;
+  left: auto;
+  right: auto;
+  display: none;
+}
+.selectable-card:hover .card-actions, .selected-card .card-actions{
+  position: absolute;
+  top: auto;
+  bottom: -50px;
+  display: inherit;
+  width: auto;
+  left: auto;
+  right: auto;
+  align-self: center;
+}
+.selectable-card .stats {
+  display: block !important;
+}
+.static-select-card .card-actions{
+  position: absolute;
+  top: auto;
+  bottom: -50px;
+  display: inherit;
+  width: auto;
+  left: auto;
+  right: auto;
+  align-self: center;
+}
+
+/* css to customize selectable area styles  */
+.selectable-area {
+  cursor: pointer;
+}
+.selectable-area h3 {
+  font-size: 1.5em;
+}
+.selectable-area:hover {
+  cursor: pointer;
+  background-color: lightgrey;
+}
+.selected-area {
+  position: relative;
+  border: 3px solid #5a73ca;
+}
+.selected-area:before{
+  position: absolute;
+  display: block;
+  border-top: 28px solid #5a73ca;
+  border-left: 28px solid transparent;
+  right: 0;
+  top: 0;
+  content: "";
+  z-index: 101;
+}
+.selected-area:after{
+  position: absolute;
+  display: block;
+  content: "\e013";
+  top: 0;
+  right: 0;
+  font-family: Glyphicons Halflings;
+  font-size: 10pt;
+  font-weight: normal;
+  z-index: 102;
+  color: #fff;
+}
+.selectable-area .card-icon {
+  padding: 5px !important;
+}
+.selectable-area .card-actions{
+  position: absolute;
+  top: auto;
+  bottom: -50px;
+  width: auto;
+  left: auto;
+  right: auto;
+  display: none;
+}
+.selectable-area:hover .card-actions, .selected-area .card-actions{
+  position: absolute;
+  top: auto;
+  bottom: -50px;
+  display: inherit;
+  width: auto;
+  left: auto;
+  right: auto;
+  align-self: center;
+}
+.selectable-area .stats {
+  display: block !important;
+}
+.card.card-stats .card-header i {
+  font-size: 36px;
+  vertical-align: middle;
+  line-height: 36px;
+  width: 36px;
+  height: 36px;
+  text-align: center;
+}
+button.mat-icon-button {
+  padding: 0;
+  min-width: 0;
+  height: 40px;
+  width: auto;
+  flex-shrink: 0;
+  line-height: 40px;
+  border-radius: 50%;
+}
+
+/* css to customize selectable icon styles  */
+.selectable-icon {
+  cursor: pointer;
+  transform: translate3d(0,0,0);
+  transition: all .3s cubic-bezier(.34,1.61,.7,1);
+}
+.selectable-icon:hover {
+  cursor: pointer;
+  color: #00bcd4;
+  transform: translate3d(0,-3px,0);
+}
+
+.select-info-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: mediumvioletred;
+}
+
+hr.nice-hr {
+  border: 0;
+  height: 1px;
+  background-image: -webkit-linear-gradient(left, #f0f0f0, #78aedc, #f0f0f0);
+}
+
+.file-drop-zone {
+  margin: 5px auto;
+  border: dotted 3px lightgray;
+  text-align: center;
+  line-height: 100px;
+  color: darkgrey;
+  font-weight: normal;
+  background-color: lightgoldenrodyellow;
+}
+.nv-file-over {
+  margin: 5px auto;
+  border: dotted 3px #16b6de;
+  text-align: center;
+  line-height: 100px;
+  color: darkgrey;
+  font-weight: normal;
+  background-color: aliceblue;
+}
+
+.container-fluid .row {
+  margin-top: 10px;
+  .col-form-label, .label-on-right {
+    padding: 16px 5px 0 0;
+    text-align: right;
+  }
+  .label-on-right {
+    text-align: left;
+  }
+}
+
+mat-error.for-select2{
+  top: calc(100% - 2em);
+  position: absolute;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+  font-size: 75%;
+  font-weight: 400;
+}
+
+.map-overview-info {
+  padding: 6px 8px;
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  background: white;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+}
+.map-overview-info h4 {
+  margin: 0 0 5px;
+  color: #777;
+}
+
+.picture {
+  width: 106px;
+  height: 106px;
+  background-color: #999999;
+  border: 4px solid #CCCCCC;
+  color: #FFFFFF;
+  border-radius: 50%;
+  margin: 5px auto;
+  overflow: hidden;
+  transition: all 0.2s;
+  -webkit-transition: all 0.2s;
+}
+.picture input[type="file"] {
+  cursor: pointer;
+  display: block;
+  height: 100%;
+  left: 0;
+  opacity: 0 !important;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.picture-src{
+  width: 100%;
+}
+
+.main-panel .main-content{
+  margin-top: 15px;
+}
+
+.demo-chart {
+  height: 400px;
+}

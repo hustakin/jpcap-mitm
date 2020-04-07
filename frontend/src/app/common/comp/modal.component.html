@@ -1,0 +1,26 @@
+
+<!--
+  ~ Copyright (c) 2020. Frankie Fan.
+  ~ All rights reserved.
+  -->
+
+<div class="modal fade" id="{{modalId}}" tabindex="-1" role="dialog"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="card" data-color="rose" style="min-height: 0;">
+                    <div class="card-header text-center">
+                        <h3 class="card-title">
+                            {{title}}
+                        </h3>
+                        <h5 class="card-description" *ngIf="description">{{description}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <ng-content></ng-content>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
