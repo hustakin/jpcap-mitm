@@ -336,6 +336,8 @@ public class AttackService {
 
                                     send(ipPacket, destMacBt);
                                 }
+                            } else {
+                                logger.info("Ignore IP packet from " + ipPacket.src_ip.getHostAddress() + " to " + ipPacket.dst_ip.getHostAddress());
                             }
                         }
                         if (packet instanceof ARPPacket) {

@@ -1,8 +1,9 @@
 HELP.md
 /target/
+/backend/target/
 !.mvn/wrapper/maven-wrapper.jar
 .class
-.log
+*.log
 
 ### STS ###
 .apt_generated
