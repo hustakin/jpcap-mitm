@@ -15,6 +15,7 @@ import {
     PacketStatisticFilterParams
 } from "../model/common";
 import swal from "sweetalert2";
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class StatisticService {
@@ -22,7 +23,7 @@ export class StatisticService {
     }
 
     statisticPackets(params: PacketStatisticFilterParams): Observable<AnalysisStatistic> {
-        return this.http.post<AnalysisStatistic>(`${'/api/statisticPackets'}`, params).pipe(
+        return this.http.post<AnalysisStatistic>(`${environment.apiBaseUrl}/api/statisticPackets`, params).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -33,7 +34,7 @@ export class StatisticService {
     }
 
     statisticPacketsContentType(params: PacketStatisticFilterParams): Observable<AnalysisContentTypeStatistic> {
-        return this.http.post<AnalysisContentTypeStatistic>(`${'/api/statisticPacketsContentType'}`, params).pipe(
+        return this.http.post<AnalysisContentTypeStatistic>(`${environment.apiBaseUrl}/api/statisticPacketsContentType`, params).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -44,7 +45,7 @@ export class StatisticService {
     }
 
     statisticTimelinePackets(params: PacketStatisticFilterParams): Observable<AnalysisTimelineStatistic> {
-        return this.http.post<AnalysisTimelineStatistic>(`${'/api/statisticTimelinePackets'}`, params).pipe(
+        return this.http.post<AnalysisTimelineStatistic>(`${environment.apiBaseUrl}/api/statisticTimelinePackets`, params).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);

@@ -10,6 +10,7 @@ import {HttpClient} from '@angular/common/http';
 import {catchError, switchMap} from "rxjs/operators";
 import {AnalysisStatistic, OriginalPacket, Packet, PacketFilterParams, Result} from "../model/common";
 import swal from "sweetalert2";
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class AnalysisService {
@@ -17,7 +18,7 @@ export class AnalysisService {
     }
 
     analysisByBatchId(batchId: number): Observable<Result> {
-        return this.http.get<Result>(`${'/api/analysisByBatchId'}?batchId=${batchId}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/analysisByBatchId?batchId=${batchId}`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -28,7 +29,7 @@ export class AnalysisService {
     }
 
     isAnalyzing(): Observable<Result> {
-        return this.http.get<Result>(`${'/api/isAnalyzing'}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/isAnalyzing`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -39,7 +40,7 @@ export class AnalysisService {
     }
 
     distinctBatchIds(): Observable<number[]> {
-        return this.http.get<number[]>(`${'/api/distinctBatchIds'}`).pipe(
+        return this.http.get<number[]>(`${environment.apiBaseUrl}/api/distinctBatchIds`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -50,7 +51,7 @@ export class AnalysisService {
     }
 
     filterPackets(params: PacketFilterParams): Observable<Packet[]> {
-        return this.http.post<Packet[]>(`${'/api/filterPackets'}`, params).pipe(
+        return this.http.post<Packet[]>(`${environment.apiBaseUrl}/api/filterPackets`, params).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -61,7 +62,7 @@ export class AnalysisService {
     }
 
     statisticPackets(params: PacketFilterParams): Observable<AnalysisStatistic> {
-        return this.http.post<AnalysisStatistic>(`${'/api/statisticPackets'}`, params).pipe(
+        return this.http.post<AnalysisStatistic>(`${environment.apiBaseUrl}/api/statisticPackets`, params).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -72,7 +73,7 @@ export class AnalysisService {
     }
 
     getOriginalPackets(originalIds: string[]): Observable<OriginalPacket[]> {
-        return this.http.get<OriginalPacket[]>(`${'/api/getOriginalPackets'}?originalIds=${originalIds}`).pipe(
+        return this.http.get<OriginalPacket[]>(`${environment.apiBaseUrl}/api/getOriginalPackets?originalIds=${originalIds}`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);

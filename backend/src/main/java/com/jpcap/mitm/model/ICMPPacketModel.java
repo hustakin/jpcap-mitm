@@ -25,11 +25,11 @@ public class ICMPPacketModel extends IPPacketModel {
     private int trans_timestamp;
     private short mtu;
     private IPPacket ippacket;
-    private InetAddress redir_ip;
+    //private InetAddress redir_ip;
     private byte addr_num;
     private byte addr_entry_size;
     private short alive_time;
-    private InetAddress[] router_ip;
+    //private InetAddress[] router_ip;
     private int[] preference;
 
     public static ICMPPacketModel readFrom(ICMPPacket packet) {
@@ -73,11 +73,11 @@ public class ICMPPacketModel extends IPPacketModel {
         model.setTrans_timestamp(packet.trans_timestamp);
         model.setMtu(packet.mtu);
         model.setIppacket(packet.ippacket);
-        model.setRedir_ip(packet.redir_ip);
+        //model.setRedir_ip(packet.redir_ip);
         model.setAddr_num(packet.addr_num);
         model.setAddr_entry_size(packet.addr_entry_size);
         model.setAlive_time(packet.alive_time);
-        model.setRouter_ip(packet.router_ip);
+        //model.setRouter_ip(packet.router_ip);
         model.setPreference(packet.preference);
         return model;
     }
@@ -170,13 +170,13 @@ public class ICMPPacketModel extends IPPacketModel {
         this.ippacket = ippacket;
     }
 
-    public InetAddress getRedir_ip() {
-        return redir_ip;
-    }
-
-    public void setRedir_ip(InetAddress redir_ip) {
-        this.redir_ip = redir_ip;
-    }
+    //public InetAddress getRedir_ip() {
+    //    return redir_ip;
+    //}
+    //
+    //public void setRedir_ip(InetAddress redir_ip) {
+    //    this.redir_ip = redir_ip;
+    //}
 
     public byte getAddr_num() {
         return addr_num;
@@ -202,13 +202,13 @@ public class ICMPPacketModel extends IPPacketModel {
         this.alive_time = alive_time;
     }
 
-    public InetAddress[] getRouter_ip() {
-        return router_ip;
-    }
-
-    public void setRouter_ip(InetAddress[] router_ip) {
-        this.router_ip = router_ip;
-    }
+    //public InetAddress[] getRouter_ip() {
+    //    return router_ip;
+    //}
+    //
+    //public void setRouter_ip(InetAddress[] router_ip) {
+    //    this.router_ip = router_ip;
+    //}
 
     public int[] getPreference() {
         return preference;
