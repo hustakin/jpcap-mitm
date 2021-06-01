@@ -2,74 +2,85 @@
 本应用所解决的问题为局域网攻击和数据嗅探，能对局域网中的任意目标终端进行点对点攻击，从而嗅探该目标终端的上行及下行互联网数据。
 针对网络数据的多源异构和实时性，结合MongoDB天然的NoSQL特性，设计具有针对性的探测和监控引擎。
 ```
-1. 服务端：网络攻击所使用的核心技术包括winpcap、ARP Spoofing（ARP欺骗）、MITM（中间人攻击）、网络数据包的分组/拼接/解压/还原等
+1. 服务端：后端所使用的核心技术为SpringBoot，网络攻击所使用的核心技术包括winpcap、jpcap、ARP Spoofing（ARP欺骗）、MITM（中间人攻击）、网络数据包的分组/拼接/解压/还原等
 2. 客户端：前端所使用的核心技术包括Angular6、ECharts等
+3. 打包部署：通过Maven将前后端打入同一个jar包
 ```
 
-#### 一、网络库及IP转发 ####
+#### 一、环境配置 ####
 
 ##### 1) MacOS
 
-拷贝libjpcap.jnilib到/Library/Java/Extensions/目录中，该库为本人MacOS开发机编译生成
+###### 所需下载和安装软件
+1. Java (不能选64-bit)： https://www.java.com/en/download/manual.jsp
+2. MongoDB (必须选3.4.24)： https://www.mongodb.com/try/download/community
+3. WinPcap latest： https://www.winpcap.org/install/default.htm
+4. Wireshark: https://2.na.dl.wireshark.org/osx/Wireshark%203.4.5%20Intel%2064.dmg
+5. Maven、NodeJS
 
-    1. 开启IP转发：sudo sysctl -w net.inet.ip.forwarding=1
-    2. 查看IP转发已开启（为1）：sudo sysctl -a | grep net.inet.ip.forwarding
-    3. 系统重启后IP转发会变为默认关闭状态，一定要重新开启，否则被攻击目标无法正常上网
+###### 所需的配置
+1. 开启IP转发：sudo sysctl -w net.inet.ip.forwarding=1。查看IP转发已开启（为1）：sudo sysctl -a | grep net.inet.ip.forwarding，系统重启后IP转发会变为默认关闭状态，一定要重新开启，否则被攻击目标无法正常上网
+2. 将MongoDB的安装目录下bin目录的绝对路径加入环境变量path中，以便能在命令行启动MongoDB服务
+3. 拷贝libjpcap.jnilib到/Library/Java/Extensions/目录中
+4. 保证运行本程序的服务器与攻击目标手机所连接的Wifi为同一个路由器
+5. 命令行进入代码根目录，用maven编译打包：mvn package -Dmaven.test.skip=true，将jpcap-mitm.jar拷贝到任意目录作为工作目录，并在该工作目录下创建data/db文件夹作为MongoDB数据文件夹
+6. 打开下载的Wireshark的dmg包，会看到有一个Install ChmodBPF.pkg包，双击安装该软件包
 
-进入第二步和第三步，若程序运行时发现jpcap模块无法正常工作，则需回此处按以下步骤自行编译jpcap库
+###### 启动步骤
+1. 打开Terminal，命令行中进入上述指定的工作目录，然后输入运行mongod --dbpath=data/db，数十秒后待MongoDB服务成功运行并打印类似log： *** waiting for connections on port 27017
+2. 点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中跳转到D：\mitm，然后输入运行java -jar jpcap-mitm.jar，待此服务成功运行并打印类似log： *** Started Application in ** seconds
+3. 使用Chrome浏览器打开http://localhost:8888，或通过其他设备远程访问此程序也可http://<本机IP>:8888
+4. 成功打开本程序管理网站，Select interface处选择正确的网卡，设置好本机IP和MAC，攻击目标手机IP和MAC，网关（路由器）IP和MAC，注意都是内网IP，应都在同一个网段，
+5. 攻击目标手机的IP和MAC可在手机的WIFI连接信息中查看，若不知本机IP和MAC及路由器的IP和MAC，可在Terminal中输入ifconfig查找其中IPv4 Address、Physical Address、Default Gateway，再运行arp -a找到网关的MAC
+6. 设置好上述信息后，点击设置按钮，则应用程序建立好相应的连接，每次启动程序后都可以重新设置连接，但设置好后就不再能够修改，若要重新设置则可在运行jpcap-mitm.jar进程的命令行窗口中control+c关闭进程，然后重新运行即可
+7. 在启动攻击前，先尝试用攻击目标手机使用网站或APP，需保证未启动攻击时此手机是可以正常上网的
+8. 点击启动攻击后，待数秒后攻击生效则显示动态条，此时查看下面的实时统计面板数据，操作攻击目标手机使用网站或APP，则可以看到数据面板的更新
+9. 操作完网站或APP的功能后，点击停止攻击，此时攻击将立刻停止，但由于服务器上捕获到了大量的数据包在队列中需要依次入库，实时统计面板的数据可能还会陆续缓慢增加数分钟之久，然后慢慢停止增加
+10. 停止攻击后，待数秒后会提示分析数据包完成，此时可以在分析、统计、Dump等页面选择本次攻击批次ID（最新的ID）查看详细内容和图表
 
-    1. 从GitHub下载并解压jpcap库的源代码：https://github.com/mgodave/Jpcap
-    2. 从终端命令行进入目录src/main/c，并在该目录执行make命令进行编译
-    3. 编译成功后，拷贝src/main/c/libjpcap.jnilib到/Library/Java/Extensions/目录
+###### 注意事项
+1. 若有web弹出错误提示时，查看命令行jar包是否异常退出，有可能是程序crash了，此时尝试重新启动jar，可关注程序命令行log，若有错误不断抛出，可能无法正常嗅探到数据包，也请尝试重新启动jar
+2. 若路由器开启了静态IP/MAC绑定，或关闭DHCP功能，或有ARP攻击防御模块，则可能导致本应用程序只能拦截上行数据包，无法正常拦截下行数据包，若无法配置路由器设置，则只能更换环境设备重新攻击，因此若网关设备非常强大，则有可能无法完全攻击成功
+3. 启动攻击后，若攻击目标可正常上网但本程序的管理页面中却一直未嗅探到任何数据包，或攻击目标无法上网，请检查系统是否开启IP转发，仔细检查web配置中所有设备的IP和MAC是否输入正确，检查选择的网卡interface是否正确，查看服务器和攻击目标手机是否连接在同一个路由器下、查看攻击目标手机的IP是否变更（可改为固定IP），查看运行jar的命令行窗口是否是以管理员身份运行的，尝试重启电脑和等待几十分钟再试试
+4. 攻击过程不可过长，几十秒最佳，测试完成后，务必要停止攻击，否则不间断对攻击目标和网关进行的攻击会引起局域网的数据风暴，可能导致网关不堪重负而引起整个局域网的瘫痪 
+
+##### 2) Windows
+
+###### 所需下载和安装软件
+1. Java (不能选64-bit)： https://www.java.com/en/download/manual.jsp
+2. MongoDB (必须选3.4.24)： https://www.mongodb.com/try/download/community
+3. WinPcap latest： https://www.winpcap.org/install/default.htm
+5. Maven、NodeJS
+
+###### 所需的配置
+1. 开启IP转发：点击Windows左下角开始，键入regedit，然后选择注册表编辑器，右键以管理员身份打开注册表编辑器，定位注册项HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/Tcpip/Parameters，选择项目IPEnableRouter并修改数值为1
+2. 将MongoDB的安装目录下bin目录的绝对路径加入环境变量path中，以便能在命令行启动MongoDB服务
+3. 创建本程序的工作目录，比如此处我们在D盘创建文件夹D：\mitm作为工作目录，并在与工作目录同样的根目录下为MongoDB创建数据文件夹\data\db，比如此处我们与工作目录同样的根目录为D，则我们需要创建文件夹D：\data\db
+4. 保证运行本程序的服务器与攻击目标手机所连接的Wifi为同一个路由器
+5. 命令行进入代码根目录，用maven编译打包：mvn package -Dmaven.test.skip=true，将jpcap-mitm.jar和Jpcap.dll拷贝到工作目录，并在该工作目录下创建data/db文件夹作为MongoDB数据文件夹
+
+###### 启动步骤
+1. 点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中跳转到D：\，然后输入运行mongod，数十秒后待MongoDB服务成功运行并打印类似log： *** waiting for connections on port 27017，注意不要用鼠标左键选择命令行窗口任何内容，选中状态会导致该服务被挂起
+2. 点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中跳转到D：\mitm，然后输入运行java -jar jpcap-mitm.jar，待此服务成功运行并打印类似log： *** Started Application in ** seconds，注意不要用鼠标左键选择命令行窗口任何内容，选中状态会导致该服务被挂起
+3. 使用Chrome浏览器打开http://localhost:8888，或通过其他设备远程访问此程序也可http://<本机IP>:8888
+4. 成功打开本程序管理网站，Select interface处选择正确的网卡，设置好本机IP和MAC，攻击目标手机IP和MAC，网关（路由器）IP和MAC，注意都是内网IP，应都在同一个网段，
+5. 攻击目标手机的IP和MAC可在手机的WIFI连接信息中查看，若不知本机IP和MAC及路由器的IP和MAC，可点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中输入ipconfig /all，找到类似Wirelsess LAN adaptor Wi-Fi部分，找到其中IPv4 Address、Physical Address、Default Gateway，再运行arp -a找到网关的MAC
+6. 设置好上述信息后，点击设置按钮，则应用程序建立好相应的连接，每次启动程序后都可以重新设置连接，但设置好后就不再能够修改，若要重新设置则可在运行jpcap-mitm.jar进程的命令行窗口中control+c关闭进程，然后重新运行即可
+7. 在启动攻击前，先尝试用攻击目标手机使用网站或APP，需保证未启动攻击时此手机是可以正常上网的
+8. 启动攻击后，若攻击目标可正常上网，但本程序的管理页面中却一直未嗅探到任何数据包，则请查看本服务器是否启动IP转发、查看配置的各IP、MAC是否正确、查看服务器和攻击目标手机是否连接在同一个路由器下、查看攻击目标手机的IP是否变更（可改为固定IP）
+9. 点击启动攻击后，待数秒后攻击生效则显示动态条，此时查看下面的实时统计面板数据，操作攻击目标手机使用网站或APP，则可以看到数据面板的更新
+10. 操作完网站或APP的功能后，点击停止攻击，此时攻击将立刻停止，但由于服务器上捕获到了大量的数据包在队列中需要依次入库，实时统计面板的数据可能还会陆续缓慢增加数分钟之久，然后慢慢停止增加
+11. 停止攻击后，待数秒后会提示分析数据包完成，此时可以在分析、统计、Dump等页面选择本次攻击批次ID（最新的ID）查看详细内容和图表
+
+###### 注意事项
+1. 若有web弹出错误提示时，查看命令行jar包是否异常退出，有可能是程序crash了，此时尝试重新启动jar，可关注程序命令行log，若有错误不断抛出，可能无法正常嗅探到数据包，也请尝试重新启动jar
+2. 若路由器开启了静态IP/MAC绑定，或关闭DHCP功能，或有ARP攻击防御模块，则可能导致本应用程序只能拦截上行数据包，无法正常拦截下行数据包，若无法配置路由器设置，则只能更换环境设备重新攻击，因此若网关设备非常强大，则有可能无法完全攻击成功
+3. 启动攻击后，若攻击目标可正常上网但本程序的管理页面中却一直未嗅探到任何数据包，或攻击目标无法上网，请检查系统是否开启IP转发，仔细检查web配置中所有设备的IP和MAC是否输入正确，检查选择的网卡interface是否正确，查看服务器和攻击目标手机是否连接在同一个路由器下、查看攻击目标手机的IP是否变更（可改为固定IP），查看运行jar的命令行窗口是否是以管理员身份运行的，尝试重启电脑和等待几十分钟再试试
+4. 当网卡interface列表中的命名无法确定该选择哪一个时，打开注册表编辑器，查看注册项HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{*}，该列表对应interface列表，挨个查看每一个interface中的注册项，查看其中哪一个中的配置与当前服务器的IP一致则表示该interface为我们需要选择的
+5. 攻击过程不可过长，几十秒最佳，测试完成后，务必要停止攻击，否则不间断对攻击目标和网关进行的攻击会引起局域网的数据风暴，可能导致网关不堪重负而引起整个局域网的瘫痪 
 
 
-##### 2) Windows 10 (64位)
-
-拷贝Jpcap.dll到环境变量Path任意目录中，该库为本人Windows开发机编译生成
-
-    1. 开启IP转发：以管理员身份打开注册表编辑器，定位注册项HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/Tcpip/Parameters，选择项目IPEnableRouter并修改数值为1
-    2. 系统重启后IP转发会变为默认关闭状态，一定要重新开启，否则被攻击目标无法正常上网
-
-进入第二步和第三步，若程序运行时发现jpcap模块无法正常工作，则需回此处按以下步骤自行编译jpcap库
-
-    1. 从GitHub下载并解压jpcap库的源代码：https://github.com/jpcap/jpcap
-    2. 从终端命令行进入目录src/main/c，并在该目录执行make命令进行编译
-    3. 编译成功后，拷贝Jpcap.dll到环境变量Path任意目录
-
----
-
-
-#### 二、JDK ####
-
-Windows安装x86（32位）JDK 1.8版本（1.8.0_211以上），MacOS安装64位JDK 1.8版本（1.8.0_211以上），并配置好环境变量path及classpath，在terminal中通过以下命令可以查看java版本则表示安装成功
-```
-java -version
-```
-
----
-
-
-#### 三、运行程序 ####
-
-1. 在任意位置创建工作目录，拷贝resources/jpcap-mitm.jar到工作目录中, 保证本机8888端口未被占用，运行jar包: java -jar jpcap-mitm.jar
-
-2. 等待此信息则表示运行成功: *** Started Application in ** seconds
-
-3. 使用Chrome浏览器打开<http://localhost:8888> ，或通过其他设备远程访问此程序也可<http://***:8888>
-
-4. 选择网卡，设置本机IP和MAC，攻击目标目标IP和MAC，网关IP和MAC，注意都是内网IP，应该都在同一个网段，
-系统会自动读取本机IP和MAC，用户仍需要仔细确认是否正确并补充其他
-
-5. 设置好上述信息后点击设置按钮，则应用程序建立好相应的连接，每次启动程序后都可以重新设置连接，但设置好后就不再能够修改，
-只能够启动攻击和停止攻击，若要重新设置则可kill掉jpcap-mitm.jar进程并重新运行即可
-
-6. 每次停止攻击后，会自动启动对该次攻击的所有捕获数据包进行分析，因此攻击时间越长，所需的分析时间就会越长，
-分析过程中查看analysis和statistic页面会实时看到当前状态是否分析完成。在dump页面能看到每次攻击记录，并能对该次记录重新分析或者删除。
-
----
-
-
-#### 四、程序说明 ####
+#### 二、程序说明 ####
 
 本项目前端界面如下
 
@@ -115,21 +126,6 @@ java -version
 
     1. 在此页面，我们可以查看每一次攻击的基本数据，如攻击ID/攻击时间/上行数据帧数量/下行数据帧数量等。同时，我们还可以对每一次攻击过程进行操作，可以重新分析，或者删除所有相关数据包和分析结果。如下图所示：
     ![image14](./resources/images/image14.png)
-
----
-
-
-#### PS ####
-
-1. 若有web弹出错误提示时，查看命令行jar包是否异常退出，网络库有可能会crash，此时尝试重新启动jar
-
-2. 若路由器开启了静态IP/MAC绑定，或关闭DHCP功能，或有ARP攻击防御模块，则可能导致本应用程序只能拦截上行数据包，无法正常拦截下行数据包，若无法配置路由器设置，则只能更换测试机重新攻击，因此若网关设备较强大，可能无法完全攻击成功
-
-3. 启动攻击后，若被攻击目标无法上网，一定是没有开启IP转发功能导致只实施了ARP攻击而代理功能被系统拦截，查看上述第一步开启IP转发再次攻击即可
-
-4. 本项目只是短期完成的基于架构层面的POC，并非一个完整项目，仅供趣味探索
-
----
 
 
 ### Contribution ###
