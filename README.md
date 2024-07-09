@@ -1,131 +1,130 @@
 ﻿## README ##
-本应用所解决的问题为局域网攻击和数据嗅探，能对局域网中的任意目标终端进行点对点攻击，从而嗅探该目标终端的上行及下行互联网数据。
-针对网络数据的多源异构和实时性，结合MongoDB天然的NoSQL特性，设计具有针对性的探测和监控引擎。
+This application solves the problem of LAN attacks and data sniffing. It can perform point-to-point attacks on any target terminal in the LAN to sniff the target terminal's upstream and downstream internet data. Aiming at the multi-source heterogeneity and real-time nature of network data, a targeted detection and monitoring engine is designed in combination with MongoDB's natural NoSQL characteristics.
 ```
-1. 服务端：后端所使用的核心技术为SpringBoot，网络攻击所使用的核心技术包括winpcap、jpcap、ARP Spoofing（ARP欺骗）、MITM（中间人攻击）、网络数据包的分组/拼接/解压/还原等
-2. 客户端：前端所使用的核心技术包括Angular6、ECharts等
-3. 打包部署：通过Maven将前后端打入同一个jar包
+1. Server: The core technology used in the backend is SpringBoot. The core technologies used for network attacks include winpcap, jpcap, ARP Spoofing (ARP deception), MITM (Man-in-the-Middle Attack), and network packet grouping/degrouping, decompression, and restoration.
+2. Client: The core technologies used in the frontend include Angular6, ECharts, etc.
+3. Packaging and Deployment: The front-end and back-end are packaged into the same jar file using Maven.
 ```
 
-#### 一、环境配置 ####
 
-##### 1) MacOS
+#### 1. Environment Configuration ####
 
-###### 所需下载和安装软件
-1. Java (不能选64-bit)： https://www.java.com/en/download/manual.jsp
-2. MongoDB (必须选3.4.24)： https://www.mongodb.com/try/download/community
-3. WinPcap latest： https://www.winpcap.org/install/default.htm
-4. Wireshark: https://2.na.dl.wireshark.org/osx/Wireshark%203.4.5%20Intel%2064.dmg
-5. Maven、NodeJS
+##### 1) macOS
 
-###### 所需的配置
-1. 开启IP转发：sudo sysctl -w net.inet.ip.forwarding=1。查看IP转发已开启（为1）：sudo sysctl -a | grep net.inet.ip.forwarding，系统重启后IP转发会变为默认关闭状态，一定要重新开启，否则被攻击目标无法正常上网
-2. 将MongoDB的安装目录下bin目录的绝对路径加入环境变量path中，以便能在命令行启动MongoDB服务
-3. 拷贝libjpcap.jnilib到/Library/Java/Extensions/目录中
-4. 保证运行本程序的服务器与攻击目标手机所连接的Wifi为同一个路由器
-5. 命令行进入代码根目录，用maven编译打包：mvn package -Dmaven.test.skip=true，将jpcap-mitm.jar拷贝到任意目录作为工作目录，并在该工作目录下创建data/db文件夹作为MongoDB数据文件夹
-6. 打开下载的Wireshark的dmg包，会看到有一个Install ChmodBPF.pkg包，双击安装该软件包
+###### Required Software Downloads and Installations
+1. Java (do not select 64-bit): [Java Download](https://www.java.com/en/download/manual.jsp)
+2. MongoDB (must choose 3.4.24): [MongoDB Download](https://www.mongodb.com/try/download/community)
+3. WinPcap latest: [WinPcap Download](https://www.winpcap.org/install/default.htm)
+4. Wireshark: [Wireshark Download](https://2.na.dl.wireshark.org/osx/Wireshark%203.4.5%20Intel%2064.dmg)
+5. Maven, NodeJS
 
-###### 启动步骤
-1. 打开Terminal，命令行中进入上述指定的工作目录，然后输入运行mongod --dbpath=data/db，数十秒后待MongoDB服务成功运行并打印类似log： *** waiting for connections on port 27017
-2. 点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中跳转到D：\mitm，然后输入运行java -jar jpcap-mitm.jar，待此服务成功运行并打印类似log： *** Started Application in ** seconds
-3. 使用Chrome浏览器打开http://localhost:8888，或通过其他设备远程访问此程序也可http://<本机IP>:8888
-4. 成功打开本程序管理网站，Select interface处选择正确的网卡，设置好本机IP和MAC，攻击目标手机IP和MAC，网关（路由器）IP和MAC，注意都是内网IP，应都在同一个网段，
-5. 攻击目标手机的IP和MAC可在手机的WIFI连接信息中查看，若不知本机IP和MAC及路由器的IP和MAC，可在Terminal中输入ifconfig查找其中IPv4 Address、Physical Address、Default Gateway，再运行arp -a找到网关的MAC
-6. 设置好上述信息后，点击设置按钮，则应用程序建立好相应的连接，每次启动程序后都可以重新设置连接，但设置好后就不再能够修改，若要重新设置则可在运行jpcap-mitm.jar进程的命令行窗口中control+c关闭进程，然后重新运行即可
-7. 在启动攻击前，先尝试用攻击目标手机使用网站或APP，需保证未启动攻击时此手机是可以正常上网的
-8. 点击启动攻击后，待数秒后攻击生效则显示动态条，此时查看下面的实时统计面板数据，操作攻击目标手机使用网站或APP，则可以看到数据面板的更新
-9. 操作完网站或APP的功能后，点击停止攻击，此时攻击将立刻停止，但由于服务器上捕获到了大量的数据包在队列中需要依次入库，实时统计面板的数据可能还会陆续缓慢增加数分钟之久，然后慢慢停止增加
-10. 停止攻击后，待数秒后会提示分析数据包完成，此时可以在分析、统计、Dump等页面选择本次攻击批次ID（最新的ID）查看详细内容和图表
+###### Required Configurations
+1. Enable IP forwarding: `sudo sysctl -w net.inet.ip.forwarding=1`. Check if IP forwarding is enabled (should be 1): `sudo sysctl -a | grep net.inet.ip.forwarding`. After system restart, IP forwarding will revert to default off state, so it must be re-enabled; otherwise, the target under attack will not be able to access the internet normally.
+2. Add the absolute path of the bin directory in the MongoDB installation directory to the environment variable path to start the MongoDB service from the command line.
+3. Copy `libjpcap.jnilib` to `/Library/Java/Extensions/`.
+4. Ensure that the server running this program and the target mobile phone are connected to the same router via Wi-Fi.
+5. Navigate to the root directory of the code in the command line, compile and package using Maven: `mvn package -Dmaven.test.skip=true`, copy `jpcap-mitm.jar` to any directory as the working directory, and create a `data/db` folder in this working directory as the MongoDB data folder.
+6. Open the downloaded Wireshark dmg package, you will see an `Install ChmodBPF.pkg` package, double-click to install this software package.
 
-###### 注意事项
-1. 若有web弹出错误提示时，查看命令行jar包是否异常退出，有可能是程序crash了，此时尝试重新启动jar，可关注程序命令行log，若有错误不断抛出，可能无法正常嗅探到数据包，也请尝试重新启动jar
-2. 若路由器开启了静态IP/MAC绑定，或关闭DHCP功能，或有ARP攻击防御模块，则可能导致本应用程序只能拦截上行数据包，无法正常拦截下行数据包，若无法配置路由器设置，则只能更换环境设备重新攻击，因此若网关设备非常强大，则有可能无法完全攻击成功
-3. 启动攻击后，若攻击目标可正常上网但本程序的管理页面中却一直未嗅探到任何数据包，或攻击目标无法上网，请检查系统是否开启IP转发，仔细检查web配置中所有设备的IP和MAC是否输入正确，检查选择的网卡interface是否正确，查看服务器和攻击目标手机是否连接在同一个路由器下、查看攻击目标手机的IP是否变更（可改为固定IP），查看运行jar的命令行窗口是否是以管理员身份运行的，尝试重启电脑和等待几十分钟再试试
-4. 攻击过程不可过长，几十秒最佳，测试完成后，务必要停止攻击，否则不间断对攻击目标和网关进行的攻击会引起局域网的数据风暴，可能导致网关不堪重负而引起整个局域网的瘫痪 
+###### Startup Steps
+1. Open Terminal, navigate to the specified working directory, and run `mongod --dbpath=data/db`. After a few seconds, wait for the MongoDB service to successfully run and print a log similar to: *** waiting for connections on port 27017.
+2. Click the Windows start button at the bottom left, type `cmd`, then right-click to run the command line as administrator. Navigate to `D:\mitm` in the command line, then run `java -jar jpcap-mitm.jar`. Wait for the service to successfully run and print a log similar to: *** Started Application in ** seconds.
+3. Open Chrome browser and navigate to `http://localhost:8888`, or access the program remotely from another device via `http://<local IP>:8888`.
+4. After successfully opening the management site of this program, select the correct network card at `Select interface`, set the local IP and MAC, target mobile IP and MAC, gateway (router) IP and MAC. Note that these are all internal network IPs and should be on the same subnet.
+5. The IP and MAC of the target mobile phone can be viewed in the Wi-Fi connection information on the phone. If you do not know the local IP and MAC or the router's IP and MAC, enter `ifconfig` in Terminal to find the IPv4 Address, Physical Address, and Default Gateway. Run `arp -a` to find the gateway's MAC.
+6. After setting the above information, click the setting button, then the application will establish the corresponding connection. Each time the program starts, you can reset the connection, but once set, it cannot be modified. To reset, close the `jpcap-mitm.jar` process in the command line window by pressing `control+c`, then restart the program.
+7. Before starting the attack, try using the target mobile phone to access websites or apps. Ensure the phone can access the internet normally without starting the attack.
+8. After clicking start attack, wait for a few seconds for the attack to take effect and display the dynamic bar. Check the data on the real-time statistics panel below and use the target mobile phone to access websites or apps to see the data panel updates.
+9. After completing the website or app functions, click stop attack. The attack will immediately stop, but the server captured a large number of packets that need to be sequentially stored, so the real-time statistics panel data may continue to slowly increase for a few minutes before stopping.
+10. After stopping the attack, wait for a few seconds for the message that packet analysis is complete. You can then select the batch ID (latest ID) of this attack on the analysis, statistics, and dump pages to view detailed content and charts.
+
+###### Notes
+1. If a web error prompt appears, check if the command line jar package has exited abnormally. The program may have crashed. Try restarting the jar. Pay attention to the command line log of the program. If errors are continuously thrown, the program may not be able to sniff packets normally. Try restarting the jar.
+2. If the router has static IP/MAC binding enabled, DHCP disabled, or ARP attack defense modules, it may cause the program to only intercept upstream packets and not downstream packets. If the router settings cannot be configured, switch to different equipment and attack again. If the gateway device is very powerful, the attack may not be completely successful.
+3. After starting the attack, if the target can access the internet normally but no packets are sniffed in the program's management page, or the target cannot access the internet, check if IP forwarding is enabled on the system, carefully check the IP and MAC of all devices configured in the web, check if the selected network card interface is correct, check if the server and the target mobile phone are connected to the same router, check if the target mobile phone's IP has changed (can be fixed IP), check if the command line window running the jar is run as administrator, try restarting the computer and waiting for several minutes before retrying.
+4. The attack should not last too long, a few dozen seconds is optimal. After testing, stop the attack to prevent continuous attacks on the target and gateway causing a data storm in the LAN, which may overload the gateway and cause the entire LAN to crash.
 
 ##### 2) Windows
 
-###### 所需下载和安装软件
-1. Java (不能选64-bit)： https://www.java.com/en/download/manual.jsp
-2. MongoDB (必须选3.4.24)： https://www.mongodb.com/try/download/community
-3. WinPcap latest： https://www.winpcap.org/install/default.htm
-5. Maven、NodeJS
+###### Required Software Downloads and Installations
+1. Java (do not select 64-bit): [Java Download](https://www.java.com/en/download/manual.jsp)
+2. MongoDB (must choose 3.4.24): [MongoDB Download](https://www.mongodb.com/try/download/community)
+3. WinPcap latest: [WinPcap Download](https://www.winpcap.org/install/default.htm)
+4. Maven, NodeJS
 
-###### 所需的配置
-1. 开启IP转发：点击Windows左下角开始，键入regedit，然后选择注册表编辑器，右键以管理员身份打开注册表编辑器，定位注册项HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/Tcpip/Parameters，选择项目IPEnableRouter并修改数值为1
-2. 将MongoDB的安装目录下bin目录的绝对路径加入环境变量path中，以便能在命令行启动MongoDB服务
-3. 创建本程序的工作目录，比如此处我们在D盘创建文件夹D：\mitm作为工作目录，并在与工作目录同样的根目录下为MongoDB创建数据文件夹\data\db，比如此处我们与工作目录同样的根目录为D，则我们需要创建文件夹D：\data\db
-4. 保证运行本程序的服务器与攻击目标手机所连接的Wifi为同一个路由器
-5. 命令行进入代码根目录，用maven编译打包：mvn package -Dmaven.test.skip=true，将jpcap-mitm.jar和Jpcap.dll拷贝到工作目录，并在该工作目录下创建data/db文件夹作为MongoDB数据文件夹
+###### Required Configurations
+1. Enable IP forwarding: Click the Windows start button at the bottom left, type `regedit`, then select the registry editor. Right-click to run the registry editor as administrator. Navigate to the registry key `HKEY_LOCAL_MACHINE/SYSTEM/CurrentControlSet/Services/Tcpip/Parameters`, select the `IPEnableRouter` item and change the value to 1.
+2. Add the absolute path of the bin directory in the MongoDB installation directory to the environment variable path to start the MongoDB service from the command line.
+3. Create a working directory for this program. For example, create the folder `D:\mitm` as the working directory. In the same root directory as the working directory, create the MongoDB data folder `data/db`. For example, if the root directory is `D`, create the folder `D:\data\db`.
+4. Ensure that the server running this program and the target mobile phone are connected to the same router via Wi-Fi.
+5. Navigate to the root directory of the code in the command line, compile and package using Maven: `mvn package -Dmaven.test.skip=true`, copy `jpcap-mitm.jar` and `Jpcap.dll` to the working directory, and create a `data/db` folder in this working directory as the MongoDB data folder.
 
-###### 启动步骤
-1. 点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中跳转到D：\，然后输入运行mongod，数十秒后待MongoDB服务成功运行并打印类似log： *** waiting for connections on port 27017，注意不要用鼠标左键选择命令行窗口任何内容，选中状态会导致该服务被挂起
-2. 点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中跳转到D：\mitm，然后输入运行java -jar jpcap-mitm.jar，待此服务成功运行并打印类似log： *** Started Application in ** seconds，注意不要用鼠标左键选择命令行窗口任何内容，选中状态会导致该服务被挂起
-3. 使用Chrome浏览器打开http://localhost:8888，或通过其他设备远程访问此程序也可http://<本机IP>:8888
-4. 成功打开本程序管理网站，Select interface处选择正确的网卡，设置好本机IP和MAC，攻击目标手机IP和MAC，网关（路由器）IP和MAC，注意都是内网IP，应都在同一个网段，
-5. 攻击目标手机的IP和MAC可在手机的WIFI连接信息中查看，若不知本机IP和MAC及路由器的IP和MAC，可点击Windows左下角开始，键入cmd，然后右键以管理员身份运行命令行，在命令行中输入ipconfig /all，找到类似Wirelsess LAN adaptor Wi-Fi部分，找到其中IPv4 Address、Physical Address、Default Gateway，再运行arp -a找到网关的MAC
-6. 设置好上述信息后，点击设置按钮，则应用程序建立好相应的连接，每次启动程序后都可以重新设置连接，但设置好后就不再能够修改，若要重新设置则可在运行jpcap-mitm.jar进程的命令行窗口中control+c关闭进程，然后重新运行即可
-7. 在启动攻击前，先尝试用攻击目标手机使用网站或APP，需保证未启动攻击时此手机是可以正常上网的
-8. 启动攻击后，若攻击目标可正常上网，但本程序的管理页面中却一直未嗅探到任何数据包，则请查看本服务器是否启动IP转发、查看配置的各IP、MAC是否正确、查看服务器和攻击目标手机是否连接在同一个路由器下、查看攻击目标手机的IP是否变更（可改为固定IP）
-9. 点击启动攻击后，待数秒后攻击生效则显示动态条，此时查看下面的实时统计面板数据，操作攻击目标手机使用网站或APP，则可以看到数据面板的更新
-10. 操作完网站或APP的功能后，点击停止攻击，此时攻击将立刻停止，但由于服务器上捕获到了大量的数据包在队列中需要依次入库，实时统计面板的数据可能还会陆续缓慢增加数分钟之久，然后慢慢停止增加
-11. 停止攻击后，待数秒后会提示分析数据包完成，此时可以在分析、统计、Dump等页面选择本次攻击批次ID（最新的ID）查看详细内容和图表
+###### Startup Steps
+1. Click the Windows start button at the bottom left, type `cmd`, then right-click to run the command line as administrator. Navigate to `D:\`, then run `mongod`. After a few seconds, wait for the MongoDB service to successfully run and print a log similar to: *** waiting for connections on port 27017. Do not use the left mouse button to select any content in the command line window. The selected state will cause the service to be suspended.
+2. Click the Windows start button at the bottom left, type `cmd`, then right-click to run the command line as administrator. Navigate to `D:\mitm` in the command line, then run `java -jar jpcap-mitm.jar`. Wait for the service to successfully run and print a log similar to: *** Started Application in ** seconds.
+3. Open Chrome browser and navigate to `http://localhost:8888`, or access the program remotely from another device via `http://<local IP>:8888`.
+4. After successfully opening the management site of this program, select the correct network card at `Select interface`, set the local IP and MAC, target mobile IP and MAC, gateway (router) IP and MAC. Note that these are all internal network IPs and should be on the same subnet.
+5. The IP and MAC of the target mobile phone can be viewed in the Wi-Fi connection information on the phone. If you do not know the local IP and MAC or the router's IP and MAC, click the Windows start button at the bottom left, type `cmd`, then right-click to run the command line as administrator. Enter `ipconfig /all` in the command line to find the Wireless LAN adapter Wi-Fi section, find the IPv4 Address, Physical Address, and Default Gateway. Run `arp -a` to find the gateway's MAC.
+6. After setting the above information, click the setting button, then the application will establish the corresponding connection. Each time the program starts, you can reset the connection, but once set, it cannot be modified. To reset, close the `jpcap-mitm.jar` process in the command line window by pressing `control+c`, then restart the program.
+7. Before starting the attack, try using the target mobile phone to access websites or apps. Ensure the phone can access the internet normally without starting the attack.
+8. After clicking start attack, wait for a few seconds for the attack to take effect and display the dynamic bar. Check the data on the real-time statistics panel below and use the target mobile phone to access websites or apps to see the data panel updates.
+9. After completing the website or app functions, click stop attack. The attack will immediately stop, but the server captured a large number of packets that need to be sequentially stored, so the real-time statistics panel data may continue to slowly increase for a few minutes before stopping.
+10. After stopping the attack, wait for a few seconds for the message that packet analysis is complete. You can then select the batch ID (latest ID) of this attack on the analysis, statistics, and dump pages to view detailed content and charts.
 
-###### 注意事项
-1. 若有web弹出错误提示时，查看命令行jar包是否异常退出，有可能是程序crash了，此时尝试重新启动jar，可关注程序命令行log，若有错误不断抛出，可能无法正常嗅探到数据包，也请尝试重新启动jar
-2. 若路由器开启了静态IP/MAC绑定，或关闭DHCP功能，或有ARP攻击防御模块，则可能导致本应用程序只能拦截上行数据包，无法正常拦截下行数据包，若无法配置路由器设置，则只能更换环境设备重新攻击，因此若网关设备非常强大，则有可能无法完全攻击成功
-3. 启动攻击后，若攻击目标可正常上网但本程序的管理页面中却一直未嗅探到任何数据包，或攻击目标无法上网，请检查系统是否开启IP转发，仔细检查web配置中所有设备的IP和MAC是否输入正确，检查选择的网卡interface是否正确，查看服务器和攻击目标手机是否连接在同一个路由器下、查看攻击目标手机的IP是否变更（可改为固定IP），查看运行jar的命令行窗口是否是以管理员身份运行的，尝试重启电脑和等待几十分钟再试试
-4. 当网卡interface列表中的命名无法确定该选择哪一个时，打开注册表编辑器，查看注册项HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{*}，该列表对应interface列表，挨个查看每一个interface中的注册项，查看其中哪一个中的配置与当前服务器的IP一致则表示该interface为我们需要选择的
-5. 攻击过程不可过长，几十秒最佳，测试完成后，务必要停止攻击，否则不间断对攻击目标和网关进行的攻击会引起局域网的数据风暴，可能导致网关不堪重负而引起整个局域网的瘫痪 
+###### Notes
+1. If a web error prompt appears, check if the command line jar package has exited abnormally. The program may have crashed. Try restarting the jar. Pay attention to the command line log of the program. If errors are continuously thrown, the program may not be able to sniff packets normally. Try restarting the jar.
+2. If the router has static IP/MAC binding enabled, DHCP disabled, or ARP attack defense modules, it may cause the program to only intercept upstream packets and not downstream packets. If the router settings cannot be configured, switch to different equipment and attack again. If the gateway device is very powerful, the attack may not be completely successful.
+3. After starting the attack, if the target can access the internet normally but no packets are sniffed in the program's management page, or the target cannot access the internet, check if IP forwarding is enabled on the system, carefully check the IP and MAC of all devices configured in the web, check if the selected network card interface is correct, check if the server and the target mobile phone are connected to the same router, check if the target mobile phone's IP has changed (can be fixed IP), check if the command line window running the jar is run as administrator, try restarting the computer and waiting for several minutes before retrying.
+4. If the naming in the network card interface list cannot determine which one to select, open the registry editor and check the registry key `HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{*}`. This list corresponds to the interface list. Check each interface item in turn and see which configuration matches the current server IP, indicating the interface we need to select.
+5. The attack should not last too long, a few dozen seconds is optimal. After testing, stop the attack to prevent continuous attacks on the target and gateway causing a data storm in the LAN, which may overload the gateway and cause the entire LAN to crash.
 
 
-#### 二、程序说明 ####
+#### 2. Program Description ####
 
-本项目前端界面如下
+The front-end interface of this project is as follows
 
-1. 局域网攻击页面
+1. LAN Attack Page
 
-    1. 在此界面设置网卡以及本机/攻击目标/网关的IP和MAC，设置所监控的域名列表（一个域名，或者多个以,分割的域名），然后可控制启动或停止攻击。
-    2. 第一步是进行必要的设置，每次刚刚启动程序后才可设置这些信息，信息会保存到数据库，下次启动程序会自动读取这些信息。第一次启动时，程序会自动读取本机IP和MAC，需要仔细确认是否正确。网卡需要选择正常上网所使用的网卡设备，攻击目标表示我们需要监控的手机或者其他设备，网关则一般指我们连WIFI的路由器或其他网关设备。以上这些信息都需要严格配置正确，否则程序无法正常运行。设置界面如下图所示：
-    ![image1](./resources/images/image1.png)
-    3. 网关IP和MAC可以在网关设备上查看，或者也能通过本机路由表中看出来，如下图所示：
-    ![image2](./resources/images/image2.png)
-    4. 当我们配置完成保存时或启动攻击时，会先对所监控的域名地址列表进行DNS解析并将相应的IP列表更新到MongoDB，然后才正式启动局域网攻击和数据嗅探，界面上会呈现出攻击状态，如下图所示：
-    ![image3](./resources/images/image3.png)
-    5. 此时可以拖动页面到下半部分查看数据包嗅探统计，统计部分主要分为上行和下行两种类型，其中又分为TCP/UDP/ICMP/ARP四种类型。上行即从攻击目标往外发出的数据包，下行即攻击目标所收到的数据包。当此时我们攻击目标未浏览指定的域名列表时，所有统计都一直是0，若开始浏览指定的域名列表后，可以看到统计开始有了数据，如下图所示：
-    ![image4](./resources/images/image4.png)
-    6. 当我们停止攻击后，会自动开始详细分析本次攻击的数据包，攻击完成后也会有弹出提示，如下图所示：
-    ![image5](./resources/images/image5.png)
+    1. In this interface, set the network card and the IP and MAC of the local machine/target/gateway, set the monitored domain list (one domain or multiple domains separated by commas), and then control the start or stop of the attack.
+    2. The first step is to make necessary settings. These settings can only be made after the program is newly started each time. The information will be saved to the database, and the program will automatically read this information when it is started next time. When the program is started for the first time, it will automatically read the local IP and MAC. This needs to be carefully confirmed to be correct. The network card needs to select the network card device used for normal internet access. The target refers to the mobile phone or other devices we need to monitor. The gateway generally refers to the router or other gateway devices to which we are connected via Wi-Fi. All of the above information must be strictly configured correctly, otherwise the program cannot run normally. The setting interface is shown in the figure below:
+       ![image1](./resources/images/image1.png)
+    3. The gateway IP and MAC can be viewed on the gateway device, or they can also be seen from the local routing table, as shown in the figure below:
+       ![image2](./resources/images/image2.png)
+    4. When we finish the configuration and save or start the attack, the domain name address list to be monitored will be resolved by DNS and the corresponding IP list will be updated to MongoDB, and then the LAN attack and data sniffing will officially start. The interface will show the attack status, as shown in the figure below:
+       ![image3](./resources/images/image3.png)
+    5. At this time, you can drag the page to the lower part to view the packet sniffing statistics. The statistics part is mainly divided into two types: upstream and downstream, which are further divided into TCP/UDP/ICMP/ARP four types. Upstream means the packets sent from the target, and downstream means the packets received by the target. If the target is not browsing the specified domain list at this time, all statistics will always be 0. If it starts browsing the specified domain list, you can see that the statistics start to have data, as shown in the figure below:
+       ![image4](./resources/images/image4.png)
+    6. When we stop the attack, a detailed analysis of the packets in this attack will automatically start. After the attack is completed, there will also be a pop-up prompt, as shown in the figure below:
+       ![image5](./resources/images/image5.png)
 
-2. 数据包分析页面
+2. Packet Analysis Page
 
-    1. 在此界面，首先会显示数据包分析过程是否处在进行中，若还在分析则此时需要等待分析完成再来查看结果，分析完成后状态会自动切换为完成状态，并可查看分析结果。
-    2. 首先，我们可以选择数据包过滤器：攻击批次id/上行或下行/协议/内容，每一项过滤器都可以多选或者留空，留空则表示所有类型都匹配。在点击过滤后，下面第一个表格会显示出分析后的所有匹配的数据包，注意这里的数据包和攻击界面中的数据包是不一样的，这里的数据包都是经过组合的数据包，而攻击界面中的为原始帧，所以这里的数据包数量一定是远远小于之前的数据包数量的。在第一个表格中我们可以看到数据包所有重要的字段，同时也包括分析后的一些字段（如HTTP头/HTTP体/METHOD等等），如下图所示：
-    ![image6](./resources/images/image6.png)
-    3. 在点击选中第一个表格的任一行后，查看下面的第二个表格，可以看到这个数据包所对应的是哪些原始数据帧，我们可以在这里看到这些数据包的一些基本帧字段，如下图所示：
-    ![image7](./resources/images/image7.png)
+    1. In this interface, it will first show whether the packet analysis process is in progress. If it is still being analyzed, you need to wait for the analysis to be completed before viewing the results. After the analysis is completed, the status will automatically switch to completed, and you can view the analysis results.
+    2. First, we can choose a packet filter: attack batch id/upstream or downstream/protocol/content. Each filter item can be multi-selected or left blank, which means all types are matched. After clicking filter, the first table below will show all the matched packets after analysis. Note that the packets here are different from those in the attack interface. The packets here are all combined packets, while those in the attack interface are original frames. Therefore, the number of packets here is much smaller than before. In the first table, we can see all the important fields of the packets, including some fields after analysis (such as HTTP header/HTTP body/METHOD, etc.), as shown in the figure below:
+       ![image6](./resources/images/image6.png)
+    3. After clicking any row in the first table, check the second table below to see which original data frames correspond to this packet. We can see some basic frame fields of these packets here, as shown in the figure below:
+       ![image7](./resources/images/image7.png)
 
-3. 数据包统计页面
+3. Packet Statistics Page
 
-    1. 同样，在此界面，首先会显示数据包分析过程是否处在进行中，若还在分析则此时需要等待分析完成再来查看结果，分析完成后状态会自动切换为完成状态，并可查看分析结果。
-    2. 首先，我们可以根据攻击批次进行过滤，可以多选或者留空，留空则表示所有攻击批次都匹配，如下图所示：
-    ![image8](./resources/images/image8.png)
-    3. 在我们点击过滤后，首先可以查看到各种详细协议类型的数据包统计，主要也分为上行和下行两大类，各自又区分为HTTP/HTTPS/TCP/UDP/ICMP/ARP这些协议类型，注意其中TCP表示的是HTTP和HTTPS除外的其他TCP协议类型，而HTTP和HTTPS由于比较特殊和通用，我们才拿出来进行独立分析和统计，统计界面如下图所示：
-    ![image9](./resources/images/image9.png)
-    4. 继续往下查看，还可以看到各协议类型的饼状图，分为上行和下行两大类，如下图所示：
-    ![image10](./resources/images/image10.png)
-    5. 同样，还可以看到各内容类型的饼状图，分为上行和下行两大类，其中other表示的是HTTP/HTTPS除外的其他TCP数据包以及其他协议无法分析类型的数据包，由于无法分析出其数据包的实际内容，故统一归类为other，如下图所示：
-    ![image11](./resources/images/image11.png)
-    6. 我们还能看到基于时间线的不同数据包内容分布图，下半部分的多线图为各数据包内容的趋势变化，而上半部分的饼状图则与鼠标联动，当鼠标在多线图的x轴进行移动的时候，饼状图会实时显示出当前x轴所在时间的各数据包内容的统计和占比，如下图所示：
-    ![image12](./resources/images/image12.png)
-    7. 同样，也是时间线图也是分为上行和下行的，如下图则为下行数据：
-    ![image13](./resources/images/image13.png)
+    1. Similarly, in this interface, it will first show whether the packet analysis process is in progress. If it is still being analyzed, you need to wait for the analysis to be completed before viewing the results. After the analysis is completed, the status will automatically switch to completed, and you can view the analysis results.
+    2. First, we can filter based on the attack batch, which can be multi-selected or left blank, which means all attack batches are matched, as shown in the figure below:
+       ![image8](./resources/images/image8.png)
+    3. After clicking filter, you can first see the packet statistics of various detailed protocol types, mainly divided into two categories: upstream and downstream, each of which is further divided into HTTP/HTTPS/TCP/UDP/ICMP/ARP protocol types. Note that TCP here refers to other TCP protocol types except HTTP and HTTPS, while HTTP and HTTPS are specially and commonly analyzed and counted separately. The statistics interface is shown in the figure below:
+       ![image9](./resources/images/image9.png)
+    4. Continuing to look down, you can also see pie charts of each protocol type, divided into two categories: upstream and downstream, as shown in the figure below:
+       ![image10](./resources/images/image10.png)
+    5. Similarly, you can also see pie charts of each content type, divided into two categories: upstream and downstream, where `other` refers to other TCP packets except HTTP/HTTPS and packets of other protocols that cannot be analyzed. Since the actual content of such packets cannot be analyzed, they are uniformly classified as `other`, as shown in the figure below:
+       ![image11](./resources/images/image11.png)
+    6. We can also see the distribution of different packet contents based on the timeline. The multi-line graph at the bottom shows the trend changes of various packet contents, while the pie chart at the top interacts with the mouse. When the mouse moves on the x-axis of the multi-line graph, the pie chart will show the statistics and proportions of various packet contents at the current time on the x-axis in real-time, as shown in the figure below:
+       ![image12](./resources/images/image12.png)
+    7. Similarly, the timeline chart is also divided into upstream and downstream, as shown in the figure below, which shows the downstream data:
+       ![image13](./resources/images/image13.png)
 
-4. 数据包仓库页面
+4. Packet Warehouse Page
 
-    1. 在此页面，我们可以查看每一次攻击的基本数据，如攻击ID/攻击时间/上行数据帧数量/下行数据帧数量等。同时，我们还可以对每一次攻击过程进行操作，可以重新分析，或者删除所有相关数据包和分析结果。如下图所示：
-    ![image14](./resources/images/image14.png)
+    1. In this page, we can see the basic data of each attack, such as attack ID/attack time/number of upstream data frames/number of downstream data frames, etc. We can also operate on each attack process, reanalyze, or delete all related packets and analysis results, as shown in the figure below:
+       ![image14](./resources/images/image14.png)
 
 
 ### Contribution ###
